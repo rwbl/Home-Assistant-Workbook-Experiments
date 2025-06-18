@@ -1,6 +1,8 @@
 
 ## 🧠 Quick Tips for Raspberry Pi Pico 2 W + Thonny
 
+These are derived whilst developing Hawe experiments.
+
 ### 🚀 Flashing MicroPython Firmware
 
 1. **Put the Pico 2 W into bootloader mode**  
