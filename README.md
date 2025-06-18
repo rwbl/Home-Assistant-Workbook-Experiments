@@ -263,7 +263,7 @@ Then:
 
 ### Quick Start (Thonny)
 
-- Download and extract the hawe_master.zip from GitHub to a local folder.
+- Download and extract the hawe_main.zip from GitHub to a local folder.
 - Open the MicroPython folder containing experiments.
 - Connect your Raspberry Pi Pico 2 W to your computer.
 - Copy the contents of MicroPython/Imports to the Pico using Thonny’s file manager or an external file manager.
