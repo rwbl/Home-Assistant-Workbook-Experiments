@@ -47,27 +47,27 @@ Always test thoroughly and exercise caution when connecting hardware components 
 
 *(More experiments coming soon!)* Like BMP280, 7-segment LED display, LCD display, and distance sensors.
 
-** ⚠️ Note:** Some experiments include test scripts so you can try the hardware even without WiFi or MQTT.
+⚠️ **Note:** Some experiments include test scripts so you can try the hardware even without WiFi or MQTT.
 
 ---
 
 ## 🔌 Hardware
 
-- 🧠 **Microcontroller:** Raspberry Pi Pico W H (RP2040)  
-- 🌡️ **Example Modules:** SHT20 sensor, Rotary Encoder with Push-Button, WS2812B LEDs  
+- **Microcontroller:** Raspberry Pi Pico W H (RP2040)  
+- **Example Modules:** SHT20 sensor, Rotary Encoder with Push-Button, WS2812B LEDs  
 
 ---
 
 ## 💻 Software Stack
 
-- [🐍 MicroPython](https://micropython.org) v1.25.0  
+- [MicroPython](https://micropython.org) v1.25.0  
   - Includes modules like `neopixel`, `umqtt`  
   - Custom modules:  
     - `secrets.py`: Wi-Fi & MQTT credentials, base definitions  
     - `connect.py`: Wi-Fi & MQTT connection logic  
     - `utils.py`: Onboard LED control and utilities  
-- [🧠 Thonny IDE](https://thonny.org) v4.1.7  
-- [🏠 Home Assistant](https://www.home-assistant.io) 2025.6.x  
+- [Thonny IDE](https://thonny.org) v4.1.7  
+- [Home Assistant](https://www.home-assistant.io) 2025.6.x  
   - MQTT Integration  
   - Mosquitto MQTT Broker  
 
@@ -102,7 +102,7 @@ Example:
 
 ---
 
-### YAML Structure
+### 🧾 YAML Structure
 
 Sensor, switch, and binary sensor configurations live in YAML files included from your configuration.yaml.
 These files are created and edited using Home Assistant's File Editor.
