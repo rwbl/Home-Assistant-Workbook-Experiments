@@ -2,6 +2,7 @@
 ## 🏠 Appendix: Home Assistant – MQTT Hints & Pitfalls
 
 This appendix covers common issues and best practices when using MQTT with Home Assistant (HA), especially with MicroPython-based experiments.
+These are derived whilst developing Hawe experiments.
 
 ---
 
@@ -116,6 +117,8 @@ mosquitto_pub -h <host> -t "test/topic" -m "Hello" -r
 - Use **spaces**, not tabs!
 - Strings with special characters (like `°C`) may need quotes.
 - Indentation must be consistent – YAML is whitespace-sensitive!
+- Booleans are lowercase - true and not True
+- Hint: For JSON, true must also be lowercase
 
 ---
 
@@ -137,3 +140,4 @@ mosquitto_pub -h <host> -t "test/topic" -m "Hello" -r
 - Group all topics under a clear `base_topic` (e.g., `hawe/sht20/…`)
 - Document all MQTT topic paths
 - Restart HA after any changes to discovery topics
+
