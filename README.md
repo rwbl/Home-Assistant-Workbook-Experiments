@@ -45,7 +45,9 @@ Always test thoroughly and exercise caution when connecting hardware components 
 | **HaWe_WS2812B**               | Simulates temperature, humidity, pressure | Manual      | `./18-Hawe_WS2812B`              |
 | **HaWe_WS2812B_TrafficLight**  | Simulates temperature, humidity, pressure | Manual      | `./18-Hawe_WS2812B_TrafficLight` |
 
-*(More coming)*, like BMP280, LED 7-Segment Display, LCD display, distance sensor
+*(More experiments coming soon!) Like BMP280, 7-segment LED display, LCD display, and distance sensors.
+
+** ⚠️ Note:** Some experiments include test scripts so you can try the hardware even without WiFi or MQTT.
 
 ---
 
