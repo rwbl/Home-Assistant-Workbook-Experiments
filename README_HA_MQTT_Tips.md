@@ -83,6 +83,24 @@ Restart HA after changes.
 ### 🧹 Remove Retained MQTT Topics
 
 **With Mosquitto CLI:**
+To immediately delete a discovered MQTT entity:
+```
+mosquitto_pub -h <MQTT_HOST> -u <USERNAME> -P <PASSWORD> \
+  -t "homeassistant/binary_sensor/hawe/testbutton/config" \
+  -r -n
+```
+Explanation:
+```
+-t .../config: the topic that created the entity via autodiscovery
+-r: send a retained message
+-n: null payload, i.e., deletion
+```
+
+What Happens in Home Assistant?
+- HA receives an empty retained message.
+- It removes the corresponding entity immediately.
+- No restart or manual deletion needed.
+
 ```bash
 mosquitto_pub -t "homeassistant/sensor/hawe_sht20_temperature/config" -r -n
 mosquitto_pub -t "hawe/sht20/temperature/state" -r -n
@@ -109,6 +127,18 @@ mosquitto_sub -h <host> -t "#" -v
 ```bash
 mosquitto_pub -h <host> -t "test/topic" -m "Hello" -r
 ```
+
+## ⚙️ Autodiscovery vs Manual YAML
+
+| Autodiscovery                        | Manual YAML                   |
+| ------------------------------------ | ----------------------------- |
+| Fast setup from device               | Total control, predictable    |
+| No HA restart needed                 | Requires HA restart or reload |
+| May create long/ugly names           | You define name, ID, device   |
+| Hard to delete if config changes     | Easy to change/delete         |
+| Can lead to “stale” registry entries | Clean lifecycle with HA       |
+
+Recommendation is to use **Manual YAML**.
 
 ---
 
@@ -140,4 +170,15 @@ mosquitto_pub -h <host> -t "test/topic" -m "Hello" -r
 - Group all topics under a clear `base_topic` (e.g., `hawe/sht20/…`)
 - Document all MQTT topic paths
 - Restart HA after any changes to discovery topics
+
+### 💡 YAML Manual Definition Hints
+- "object_id": Forced the entity name, i.e. "hawe_test_button" ensures entity ID becomes binary_sensor.hawe_test_button.
+- "unique_id" must match or be consistent (it’s just the internal registry key).
+- "device" lets Home Assistant group the entity under one device (optional but useful).
+
+For example this forces binary_sensor.hawe_test_button as the exact entity ID and device HaweDevice which is shown in the HA entity list (grouped by device name).
+
+** ⚠️ IMPORTANT**
+Use Developer Tools > Actions: MQTT Reload to force reloading MQTT entities from the YAML-configuration.
+
 
