@@ -45,7 +45,7 @@ Always test thoroughly and exercise caution when connecting hardware components 
 | **HaWe_WS2812B**               | Simulates temperature, humidity, pressure | Manual      | `./18-Hawe_WS2812B`              |
 | **HaWe_WS2812B_TrafficLight**  | Simulates temperature, humidity, pressure | Manual      | `./18-Hawe_WS2812B_TrafficLight` |
 
-*(More coming)*                | BMP280, LED 7-Segment Display, LCD display, distance sensor
+*(More coming)*, like BMP280, LED 7-Segment Display, LCD display, distance sensor
 
 ---
 
@@ -281,23 +281,21 @@ Then:
 - Resource-efficient on microcontrollers
 - Great for structured experiments
 
-### Development Notes
-- MQTT methods are using IDE logging.
-- In JSON, true must be lowercase.
-
-**Secrets**
-Defined in the modules WiFiMod & MQTTMod.
-Change accordingly.
-
 ---
 
 ## 🛠️ Future Topics
 
-- Custom MQTT-based HA devices
-- MicroPython equivalents of Hawe experiments
+- Custom MQTT-based HA devices or HA Custom Component
+- B4R equivalents of selected Hawe experiments
 - Manual vs auto MQTT configuration
 - BLE sensors (e.g., BMP280, VL53L0X)
 - ESPHome integration options
+
+---
+
+## 📚 Additional Documentation
+- README_HA_MQTT_Tips.md
+- README_Pico2W_Tips.md
 
 ---
 
