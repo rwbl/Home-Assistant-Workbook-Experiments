@@ -39,7 +39,7 @@ Always test thoroughly and exercise caution when connecting hardware components 
 
 | Experiment                     | Description                               | Entity Type | Code Folder                      |
 |--------------------------------|-------------------------------------------|-------------|----------------------------------|
-| **HaWe_Env**                   | Simulates temperature, humidity, pressure | MQTTAD      | `./12-Hawe_Env`                  |
+| **HaWe_EnvSim**                | Simulates temperature, humidity, pressure | MQTTAD      | `./12-Hawe_EnvSim`               |
 | **HaWe_SHT20**                 | Read SHT20 temperature, humidity, dewpoint| MQTTAD      | `./14-Hawe_SHT20`                |
 | **HaWe_Rotary**                | Rotary Encoder with Push-Button           | MQTTAD      | `./16-HaWe_Rotary`               |
 | **HaWe_WS2812B**               | Simulates temperature, humidity, pressure | Manual      | `./18-Hawe_WS2812B`              |
