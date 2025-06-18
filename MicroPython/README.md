@@ -8,8 +8,8 @@ Each experiment subfolder includes its own README.md with detailed documentation
 
 The **Imports/** folder contains reusable Python modules shared across experiments.
 
+The **Tools/** folder contains useful MicroPython scripts such as I2C scanner utilities and scripts to remove MQTT discovery topics.
+
 ---
 
-Enjoy your journey into the Raspberry Pi Pico 2 W, MicroPython and Home Assistant integration!
-
-
+Enjoy your journey into MicroPython and Home Assistant integration!
