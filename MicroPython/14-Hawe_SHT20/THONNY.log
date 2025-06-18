@@ -1,0 +1,34 @@
+
+MPY: soft reboot
+MicroPython v1.25.0 on 2025-04-15; Raspberry Pi Pico 2 W with RP2350
+
+Type "help()" for more information.
+
+>>> %run -c $EDITOR_CONTENT -c 0301
+Starting WiFi connection...
+WiFi connected, IP: 192.168.1.153
+WiFi connected.
+Connecting to MQTT broker...
+1
+MQTT connected.
+Publishing availability topic: homeassistant/haweenv/sensor/availability payload: 'online'
+Publishing discovery config to topic: homeassistant/sensor/haweenv/temperature/config
+Payload:
+{"unit_of_measurement": "°C", "device_class": "temperature", "name": "Temperature", "state_topic": "haweenv/sensor/temperature/state", "unique_id": "haweenv_temperature", "device": {"name": "HaweEnv", "identifiers": ["haweenv"]}, "availability_topic": "homeassistant/haweenv/sensor/availability"}
+
+Publishing discovery config to topic: homeassistant/sensor/haweenv/humidity/config
+Payload:
+{"unit_of_measurement": "%", "device_class": "humidity", "name": "Humidity", "state_topic": "haweenv/sensor/humidity/state", "unique_id": "haweenv_humidity", "device": {"name": "HaweEnv", "identifiers": ["haweenv"]}, "availability_topic": "homeassistant/haweenv/sensor/availability"}
+
+Publishing discovery config to topic: homeassistant/sensor/haweenv/dewpoint/config
+Payload:
+{"unit_of_measurement": "°C", "device_class": "temperature", "name": "Dewpoint", "state_topic": "haweenv/sensor/dewpoint/state", "unique_id": "haweenv_dewpoint", "device": {"name": "HaweEnv", "identifiers": ["haweenv"]}, "availability_topic": "homeassistant/haweenv/sensor/availability"}
+
+MQTT discovery configs published.
+MQTT Done.
+Measured values -> Temp: 23.34°C, Humidity: 63.08%, Dewpoint: 15.91°C
+Publishing sensor data:
+  haweenv/sensor/temperature/state -> 23.34
+  haweenv/sensor/humidity/state -> 63.08
+  haweenv/sensor/dewpoint/state -> 15.91
+
