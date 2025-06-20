@@ -64,7 +64,7 @@ epaper = None  # declared outside
 
 def init_epaper():
     global epaper
-    print("[init_epaper] success")
+
     try:
         epaper = SolarDisplay()
         print("[init_epaper] success")
@@ -151,7 +151,20 @@ def subscribe_command():
         # print(f"[subscribe_command] topic={topic}")
     print(f"[subscribe_command] done")
 
+def show_wait_message():
+    global epaper
+    if not epaper:
+        print(f"[ERROR][show_wait_message] No display")
+        return  # skip rendering
+
+    epaper.clear(0xFF)
+    epaper.draw_datetime_bar(TITLE)
+    epaper.draw_centered_text(epd.image_Landscape, "Starting...", 0, 296, 80)
+    epaper.display_Landscape(epd.buffer_Landscape)
+    
 def show_solar_summary():
+    global epaper
+
     if not epaper:
         return  # skip rendering
 
@@ -199,14 +212,19 @@ def main_loop():
 # ---- BOOT ----
 def main():
     global wlan,mqtt
+    
     try:
-        wlan = connect.connect_wifi()
-
         # Init ePaper display first
         epaper_ok = init_epaper()
         if not epaper_ok:
             print("[boot] ePaper not available — continuing without display.")
+        
+        epaper.display_wait(TITLE, "Starting...")
+        
+        epaper.display_wait(TITLE, "Connecting WiFi...")
+        wlan = connect.connect_wifi()
 
+        epaper.display_wait(TITLE, "Connecting MQTT...")
         mqtt = connect.connect_mqtt(
             MQTT_CLIENT_ID,
             mqtt_callback,
@@ -220,11 +238,14 @@ def main():
 
         utils.onboard_led_on()
         
+        epaper.display_wait(TITLE, "Ready. Waiting for data...")
         main_loop()
 
     except Exception as e:
         print(f"[ERROR] Initialization failed: {e}")
         utils.onboard_led_blink(times=10)
+
+# show_wait_message()
 
 main()
 
