@@ -24,14 +24,14 @@ Always test thoroughly and exercise caution when connecting hardware components 
 
 ## Common Abbreviations
 
-| Abbreviation | Meaning                                    |
-|--------------|--------------------------------------------|
-| Hawe         | Home Assistant Experiments Workbook        |
-| HA           | Home Assistant                             |
-| MCU          | Microcontroller Unit (e.g., Pico2W, ESP32) |
-| MQTT         | Message Queue Telemetry Transport          |
-| MQTTAD       | MQTT Autodiscovery (MQTT Discovery)        |
-| Pico         | Raspberry Pi Pico 2 W H (RP2040)           |
+| Abbreviation | Meaning                                         |
+|--------------|-------------------------------------------------|
+| Hawe         | Home Assistant Experiments Workbook             |
+| HA           | Home Assistant                                  |
+| MCU          | Microcontroller Unit (e.g., Pico2W, ESP32)      |
+| MQTT         | Message Queue Telemetry Transport               |
+| MQTTAD       | MQTT Autodiscovery (MQTT Discovery)             |
+| Pico         | Raspberry Pi Pico W H (RP2040) (version 1 or 2) |
 
 ---
 
@@ -42,8 +42,10 @@ Always test thoroughly and exercise caution when connecting hardware components 
 | **HaWe_EnvSim**                | Simulates temperature, humidity, pressure | MQTTAD      | `./12-Hawe_EnvSim`               |
 | **HaWe_SHT20**                 | Read SHT20 temperature, humidity, dewpoint| MQTTAD      | `./14-Hawe_SHT20`                |
 | **HaWe_Rotary**                | Rotary Encoder with Push-Button           | MQTTAD      | `./16-HaWe_Rotary`               |
-| **HaWe_WS2812B**               | Simulates temperature, humidity, pressure | Manual      | `./18-Hawe_WS2812B`              |
-| **HaWe_WS2812B_TrafficLight**  | Simulates temperature, humidity, pressure | Manual      | `./18-Hawe_WS2812B_TrafficLight` |
+| **HaWe_WS2812B**               | Control a single LED                      | Manual      | `./18-Hawe_WS2812B`              |
+| **HaWe_WS2812B_TrafficLight**  | Control 3 LEDs red, yellow, green         | Manual      | `./20-Hawe_WS2812B_TrafficLight` |
+| **HaWe_SolarInfo_OLED**        | Display Solar info on 0.96" OLED          | Manual      | `./22-HaWe_SolarInfo_OLED`       |
+| **HaWe_SolarInfo_ePaper**      | Display Solar info on 2.66" ePaper Display| Manual      | `./22-HaWe_SolarInfo_ePaper`       |
 
 *(More experiments coming soon!)* Like BMP280, 7-segment LED display, LCD display, and distance sensors.
 
