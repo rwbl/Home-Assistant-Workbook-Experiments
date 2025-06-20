@@ -303,6 +303,14 @@ Then:
 - README_Pico2W_Tips.md
 
 ---
+## 🌐 Credits
+
+This project was made possible thanks to:
+- **Home Assistant** — the open-source home automation platform powering the smart home ecosystem.
+- **umqtt** — MicroPython MQTT libraries enabling reliable communication between devices.
+- The **MicroPython and Home Assistant developer communities** — for their ongoing contributions, tools, and documentation.
+
+---
 
 ## 📜 License
 
