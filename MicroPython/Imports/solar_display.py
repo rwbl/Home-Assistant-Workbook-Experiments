@@ -166,6 +166,26 @@ class SolarDisplay:
         # Push buffer to display
         self.epd.display_Landscape(self.epd.buffer_Landscape)
 
+    def display_wait(self, title, msg, pause_sec=1):
+        """
+        Clear the display, draw the title bar and show wait message centered,.
+        """
+        self.epd.image_Landscape.fill(0xFF)  # Clear screen white
+
+        self.draw_datetime_bar("", "", title)
+
+        self.draw_centered_text(self.epd.image_Landscape, msg, 0, DISPLAY_WIDTH, int(DISPLAY_HEIGHT / 2))
+
+        # Draw version info in bottom-left corner
+        self.epd.image_Landscape.text(VERSION, BOX_MARGIN_X, DISPLAY_HEIGHT - TEXT_LINE_HEIGHT, 0x00)
+
+        # Push buffer to display
+        self.epd.display_Landscape(self.epd.buffer_Landscape)
+        
+        # Wait
+        utime.sleep(pause_sec)
+
+
     def clear_and_sleep(self):
         """
         Clear the display to white and put the ePaper display to sleep mode.
