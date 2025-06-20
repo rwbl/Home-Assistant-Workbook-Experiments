@@ -12,7 +12,7 @@ This workbook is a practical guide for makers, tinkerers, and hobbyists who want
 
 ## ℹ️ About This Project
 
-I created this project to deepen my understanding of **MicroPython**, **MQTT**, and **Home Assistant**, and to explore and tinker with microcontrollers such as the **Raspberry Pi Pico 2 W** and **ESP32**.
+I created this project to deepen my understanding of **MicroPython**, **MQTT**, and **Home Assistant**, and to explore and tinker with microcontrollers such as the **Raspberry Pi Pico, Pico 2 WH** and **ESP32**.
 
 ## ⚠️ Disclaimer
 
@@ -44,8 +44,8 @@ Always test thoroughly and exercise caution when connecting hardware components 
 | **HaWe_Rotary**                | Rotary Encoder with Push-Button           | MQTTAD      | `./16-HaWe_Rotary`               |
 | **HaWe_WS2812B**               | Control a single LED                      | Manual      | `./18-Hawe_WS2812B`              |
 | **HaWe_WS2812B_TrafficLight**  | Control 3 LEDs red, yellow, green         | Manual      | `./20-Hawe_WS2812B_TrafficLight` |
-| **HaWe_SolarInfo_OLED**        | Display Solar info on 0.96" OLED          | Manual      | `./22-HaWe_SolarInfo_OLED`       |
-| **HaWe_SolarInfo_ePaper**      | Display Solar info on 2.66" ePaper Display| Manual      | `./22-HaWe_SolarInfo_ePaper`       |
+| **HaWe_SolarInfo_OLED**        | Display Solar info on 0.96" OLED display  | Manual      | `./22-HaWe_SolarInfo_OLED`       |
+| **HaWe_SolarInfo_ePaper**      | Display Solar info on 2.66" ePaper display| Manual      | `./22-HaWe_SolarInfo_ePaper`     |
 
 *(More experiments coming soon!)* Like BMP280, 7-segment LED display, LCD display, and distance sensors.
 
@@ -71,7 +71,8 @@ Always test thoroughly and exercise caution when connecting hardware components 
 - [Thonny IDE](https://thonny.org) v4.1.7  
 - [Home Assistant](https://www.home-assistant.io) 2025.6.x  
   - MQTT Integration  
-  - Mosquitto MQTT Broker  
+  - Mosquitto MQTT Broker
+  - Node-RED (required by experiments like Hawe_SolarInfo_OLED / ePaper)
 
 ---
 
