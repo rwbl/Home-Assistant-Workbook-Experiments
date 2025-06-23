@@ -1,0 +1,157 @@
+[
+    {
+        "id": "605eb9899f1e5943",
+        "type": "tab",
+        "label": "Solar Info Bridge",
+        "disabled": false,
+        "info": "**Solar Info Bridge**\r\n\r\nGather solar entity data from the HA production system and publsih as MQTT topics.\r\n",
+        "env": []
+    },
+    {
+        "id": "inject_timer",
+        "type": "inject",
+        "z": "605eb9899f1e5943",
+        "name": "Fetch solar data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            [
+                "http_req"
+            ]
+        ]
+    },
+    {
+        "id": "http_req",
+        "type": "http request",
+        "z": "605eb9899f1e5943",
+        "name": "Get /solarinfo",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://rwbl:shrdlu@192.168.1.23:1880/endpoint/solarinfo?data=all",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 330,
+        "y": 100,
+        "wires": [
+            [
+                "mqtt_prep"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_prep",
+        "type": "function",
+        "z": "605eb9899f1e5943",
+        "name": "Prepare MQTT data msgs",
+        "func": "// Parse the CSV string received\n// 6852, 0, 6252, 600, 0, 0, 100, 20250619, 932.\n// CSV format: 9 comma-separated values\n// \"powerfromsolar\", \"powerfromgrid\", \"powertogrid\", \"powertohouse\", \n// \"powertobattery\", \"powerfrombattery\", \"batterychargestate\", \n// \"powerdatestamp\", \"powertimestamp\"\n// Note the backquotes ` used.\n\n// Get the payload as CSV string\nconst csv = msg.payload;\n// Split\nconst parts = csv.trim().split(\",\");\n// Debug\n// node.warn(parts);\n\n// Basic validation\nif (parts.length !== 9) {\n    node.error(\"Unexpected CSV format\", msg);\n    return null;\n}\n\n// Keys for MQTT topics\n// Ensure same as the entity names\nconst keys = [\n    \"power_from_solar\",\n    \"power_from_grid\",\n    \"power_to_grid\",\n    \"power_to_house\",\n    \"power_to_battery\",\n    \"power_from_battery\",\n    \"power_battery_charge\",\n    \"power_datestamp\",\n    \"power_timestamp\"\n];\n\nconst topics = [];\n\nfor (let i = 0; i < keys.length; i++) {\n    const topic = `homeassistant/sensor/${keys[i]}/state`;\n    const payload = parts[i];\n    topics.push({ topic, payload });\n    // node.warn(`${topic}]}`);\n    // node.warn(`${payload}`);\n}\n\nreturn [topics];\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 100,
+        "wires": [
+            [
+                "mqtt_out",
+                "d55bc324aaaed063"
+            ]
+        ],
+        "outputLabels": [
+            "Multiple msgs"
+        ]
+    },
+    {
+        "id": "mqtt_out",
+        "type": "mqtt out",
+        "z": "605eb9899f1e5943",
+        "name": "MQTT Broker",
+        "topic": "",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "52f9508.8cbe1b",
+        "x": 800,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ac2c82c7f59e449a",
+        "type": "comment",
+        "z": "605eb9899f1e5943",
+        "name": "Solar Info Bridge",
+        "info": "**Solar Info Bridge (SIB)**\n\nPurpose\nGet Solar Data from Home Assistant Production\n\nFetch every minute the data using HTTP RESTful request:\nhttp://user:password@ha-ip:1880/endpoint/solarinfo?data=all\n\nParse the CSV string received.\n6852, 0, 6252, 600, 0, 0, 100, 20250619, 932.\nCSV format: 9 comma-separated values\n\"powerfromsolar\", \"powerfromgrid\", \"powertogrid\", \"powertohouse\", \n\"powertobattery\", \"powerfrombattery\", \"batterychargestate\", \n\"powerdatestamp\", \"powertimestamp\"\n\nPublish the data to MQTT:\n| MQTT Topic                                             | Payload  |\n| ------------------------------------------------------ | -------- |\n| homeassistant/sensor/power_from_solar/state            | 2381     |\n| homeassistant/sensor/power_from_grid/state             | 0        |\n| homeassistant/sensor/power_to_grid/state               | 2194     |\n| homeassistant/sensor/power_to_house/state              | 187      |\n| homeassistant/sensor/power_to_battery/state            | 0        |\n| homeassistant/sensor/power_from_battery/state          | 0        |\n| homeassistant/sensor/power_battery_charge/state        | 100      |\n| homeassistant/sensor/power_datestamp/state             | 20250619 |\n| homeassistant/sensor/power_timestamp/state             | 957      |\n\nSingle Topic with JSON Payload\n{\"powerfromsolar\":2291,\"powerfromgrid\":0,\"powertogrid\":2077,\"powertohouse\":214,\"powertobattery\":0,\"powerfrombattery\":0,\"batterychargestate\":100,\"powerdatestamp\":\"20250619\",\"powertimestamp\":\"1331\"}\n",
+        "x": 120,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "d55bc324aaaed063",
+        "type": "debug",
+        "z": "605eb9899f1e5943",
+        "name": "DEBUG SIB MQTT",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 810,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "52f9508.8cbe1b",
+        "type": "mqtt-broker",
+        "name": "Home",
+        "broker": "192.168.1.124",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "compatmode": false,
+        "protocolVersion": 4,
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

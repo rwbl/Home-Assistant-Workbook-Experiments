@@ -1,0 +1,14 @@
+type: entities
+entities:
+  - entity: sensor.hawe_picostatus_ip
+  - entity: binary_sensor.hawe_picostatus_online
+    name: Hawe Pico Online
+  - entity: sensor.hawe_picostatus_rssi
+    name: Hawe Pico RSSI
+  - entity: sensor.hawe_picostatus_uptime
+    name: Hawe Pico Uptime
+  - entity: sensor.hawe_picostatus_uptime_formatted
+    secondary_info: last-changed
+  - entity: button.hawe_picostatus_request_status
+  - entity: button.hawe_picostatus_toggle_led
+title: Hawe Pico Status

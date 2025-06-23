@@ -1,0 +1,10 @@
+# hawe/integrations/pico_status.yaml
+
+sensor:
+  - platform: hawe_pico_status
+
+binary_sensor:
+  - platform: hawe_pico_status
+
+button:
+  - platform: hawe_pico_status
