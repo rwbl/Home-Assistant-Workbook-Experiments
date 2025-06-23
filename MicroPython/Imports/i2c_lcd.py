@@ -78,9 +78,12 @@ class I2cLcd(LcdApi):
             self.hal_write_data(charmap[i])
 
     def load_custom_icons(self):
-        # Each character is 8 bytes of 5-bit pixel rows
+        """
+        Define 6 custom characters for solar info display.
+        Each character is 8 bytes of 5-bit pixel rows.
+        """
         icons = [
-            [0b00100, 0b10101, 0b01110, 0b11111, 0b01110, 0b10101, 0b00100, 0b00000],  # ☀ (Sun) from solor
+            [0b00100, 0b10101, 0b01110, 0b11111, 0b01110, 0b10101, 0b00100, 0b00000],  # ☀ (Sun) from solar
             [0b01010, 0b01010, 0b11111, 0b01110, 0b01110, 0b01110, 0b00100, 0b00100],  # 🔌 (Plug) from grid
             [0b00100, 0b01110, 0b11111, 0b11011, 0b10001, 0b11111, 0b00000, 0b00000],  # 🏠 (House) to house
             [0b00100, 0b01110, 0b11111, 0b00100, 0b00100, 0b00100, 0b00100, 0b00000],  # ⬆ (Up Arrow) to grid
@@ -89,16 +92,3 @@ class I2cLcd(LcdApi):
         ]
         for i, charmap in enumerate(icons):
             self.custom_char(i, charmap)
-
-    def load_custom_icons_x(self):
-        # Each character is 8 bytes of 5-bit pixel rows
-        icons = [
-            [0x0E, 0x15, 0x1F, 0x1F, 0x0E, 0x04, 0x00, 0x00],  # 0: Sun
-            [0x04, 0x0E, 0x1F, 0x0E, 0x1F, 0x04, 0x00, 0x00],  # 1: Bolt
-            [0x04, 0x0E, 0x15, 0x1F, 0x11, 0x11, 0x00, 0x00],  # 2: House
-            [0x04, 0x0E, 0x15, 0x04, 0x04, 0x04, 0x00, 0x00],  # 3: Up arrow
-            [0x0E, 0x1F, 0x11, 0x1F, 0x1F, 0x11, 0x0E, 0x00],  # 4: Battery
-            [0x00, 0x0A, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00],  # 5: Time dot
-        ]
-        for i, icon in enumerate(icons):
-            self.custom_char(i, bytearray(icon))
