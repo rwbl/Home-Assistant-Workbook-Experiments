@@ -13,3 +13,16 @@ The **Tools/** folder contains useful MicroPython scripts such as I2C scanner ut
 ---
 
 Enjoy your journey into MicroPython and Home Assistant integration!
+
+---
+
+**Disclaimer:** The experiments are provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
+
+---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
+
