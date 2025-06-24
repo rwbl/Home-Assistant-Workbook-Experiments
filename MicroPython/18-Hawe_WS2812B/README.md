@@ -81,14 +81,15 @@ Modules used:
 
 Key methods:
 
--pixels_state(rgb, brightness) — set color + brightness for all pixels
--pixel_state(index, rgb, brightness) — control individual pixel
--pixels_off() — turn off all LEDs
--mqtt_callback(topic, msg) — parses MQTT messages and updates LEDs
--publish_state() — send current light state back to HA
+- pixels_state(rgb, brightness) — set color + brightness for all pixels
+- pixel_state(index, rgb, brightness) — control individual pixel
+
+- pixels_off() — turn off all LEDs
+- mqtt_callback(topic, msg) — parses MQTT messages and updates LEDs
+- publish_state() — send current light state back to HA
 
 ## Project Structure
-
+```
 hawe_ws2812b/
 ├── hawe_ws2812b.py         # Main script
 ├── connect.py              # Handles WiFi + MQTT connection
@@ -98,22 +99,24 @@ hawe_ws2812b/
 │   └── mqtt/
 │       └── lights.yaml     # HA MQTT light definition
 └── README.md               # This documentation
+```
 
 ## Tested With
 
--Home Assistant 2025.6+
--Raspberry Pi Pico 2 WH (MicroPython)
--WS2812B LEDs (GRB order)
--Mosquitto MQTT Broker
+- Home Assistant 2025.6+
+- Raspberry Pi Pico 2 WH (MicroPython)
+- WS2812B LEDs (GRB order)
+- Mosquitto MQTT Broker
 
 ## Status
 
--Fully working
--Ready for integration into larger Hawe experiments
--Designed to be modular and easy to extend
+- Fully working
+- Ready for integration into larger Hawe experiments
+- Designed to be modular and easy to extend
 
 ## Notes
 
--Be sure to use 3.3V for VCC to avoid damaging the Pico
--Modify NUM_PIXELS in code if you use more than 2 LEDs
--Color order may vary; GRB is used in this example
+- Be sure to use 3.3V for VCC to avoid damaging the Pico
+- Modify NUM_PIXELS in code if you use more than 2 LEDs
+- Color order may vary; GRB is used in this example
+
