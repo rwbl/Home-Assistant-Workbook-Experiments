@@ -74,7 +74,7 @@ sensor.hawe_envsim_pressure
 ```
 ---
 
-## Example Home Assistant Dashboard Card
+## Example HA Lovelace Dashboard Card
 
 ```yaml
 type: entities
