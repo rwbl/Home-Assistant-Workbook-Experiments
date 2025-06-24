@@ -4,14 +4,14 @@ This folder contains the MicroPython code and resources for the **Hawe_SolarInfo
 
 ---
 
-## 📋 Description
+## Description
 
 This experiment reads live solar power data from a Home Assistant production system via MQTT and displays it on a **Waveshare 2.66" e-Paper display** (resolution 296×152 pixels) connected to a Raspberry Pi Pico WH.  
 Data is published from the HA production system via a Node-RED REST/MQTT bridge and visualized on the development system with a clean, flicker-minimized ePaper layout.
 
 ---
 
-## 📁 Contents
+## Contents
 
 | File                                      | Purpose                                             |
 |-------------------------------------------|-----------------------------------------------------|
@@ -26,7 +26,7 @@ Data is published from the HA production system via a Node-RED REST/MQTT bridge 
 
 ---
 
-## 🔄 Prepare Node-RED
+## Prepare Node-RED
 
 A Node-RED flow is required to collect solar info data in JSON format.  
 The flow runs every minute and the output publishes a JSON string to the MQTT topic:  
@@ -49,7 +49,7 @@ The flow runs every minute and the output publishes a JSON string to the MQTT to
 
 ---
 
-## ▶️ Usage
+## Usage
 
 1. Edit `secrets.py` with your WiFi and MQTT configuration.
 2. Upload all files to your **Raspberry Pi Pico WH** using Thonny or ampy.
@@ -59,7 +59,7 @@ The flow runs every minute and the output publishes a JSON string to the MQTT to
 
 ---
 
-## 🧪 MQTT Topics (Received)
+## MQTT Topics (Received)
 
 | Entity                           | Topic                                        | Example    |
 |----------------------------------|----------------------------------------------|------------|
@@ -75,18 +75,18 @@ The flow runs every minute and the output publishes a JSON string to the MQTT to
 
 ---
 
-## 🔌 Wiring
+## Wiring
 
 ### Waveshare Pico-ePaper-2.66 Display
 
 Mounted directly on the Pico WH using standard pinout (via Waveshare Pico-ePaper board).  
 No manual wiring is needed if using the official board — just plug it in.
 
-> ⚠️ Important: Use only 3.3V logic. Do not connect 5V to this display.
+> **Important**: Use only 3.3V logic. Do not connect 5V to this display.
 
 ---
 
-## 📺 Display Layout
+## Display Layout
 
 ```
 20250620       Solar Info        1231
@@ -110,7 +110,7 @@ v20250620
 
 ---
 
-## 🛠️ Notes
+## Notes
 
 - The display auto-clears and enters sleep mode when inactive.
 - Use `solar_display.py` as a reusable drawing module.
@@ -119,12 +119,12 @@ v20250620
 
 ---
 
-## 🚀 Start on Boot
+## Start on Boot
 
 To run the experiment automatically when the Raspberry Pi Pico starts, create a file named `main.py` in the root of the device.  
 This is the default entry point for MicroPython on boot.
 
-### 🧾 Example: `main.py`
+### Example: `main.py`
 
 ```python
 """
@@ -137,7 +137,7 @@ import hawe_solarinfo_epaper
 hawe_solarinfo_epaper.main()
 ```
 
-** 🔍 Notes **
+**Notes**
 
 - Ensure hawe_solarinfo_epaper.py and any required modules (like solar_display.py, secrets.py, etc.) are uploaded.
 - Place main.py in the root folder of the Pico (not in a subfolder).
@@ -148,14 +148,14 @@ hawe_solarinfo_epaper.main()
 
 ---
 
-## ✍️ ToDo
+## ToDo
 
 - Optional: Add custom bitmapped icons
 - Optional: Enable dynamic refresh interval logic
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
 - Node-RED flow in HA production system handles REST + MQTT publishing.
 - MQTT topics are defined manually via `solar_sensors.yaml` (no auto-discovery).
@@ -163,7 +163,7 @@ hawe_solarinfo_epaper.main()
 
 ---
 
-## 📌 License
+## License
 
 MIT License. See root project license in `../README.md`.
 
