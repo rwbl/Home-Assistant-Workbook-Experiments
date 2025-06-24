@@ -120,3 +120,11 @@ hawe_ws2812b/
 - Modify NUM_PIXELS in code if you use more than 2 LEDs
 - Color order may vary; GRB is used in this example
 
+---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
+
