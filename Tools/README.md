@@ -1,4 +1,6 @@
-**Tools/** folder contains useful MicroPython scripts such as I2C scanner utilities and scripts to remove MQTT discovery topics.
+# Tools
+
+This folder contains useful MicroPython scripts such as I2C scanner utilities and scripts to remove MQTT discovery topics.
 
 ---
 
