@@ -4,14 +4,14 @@ This folder contains the MicroPython code and resources for the **Hawe_SolarInfo
 
 ---
 
-## 📋 Description
+## Description
 
 This experiment reads live solar power data from a Home Assistant production system via MQTT and displays it on a **1602 LCD with I2C (PCF8574 backpack)**.  
 Data is published from the HA production system via a Node-RED REST/MQTT bridge and visualized on the development system.
 
 ---
 
-## 📁 Contents
+## Contents
 
 | File                                      | Purpose                                         |
 |-------------------------------------------|-------------------------------------------------|
@@ -26,7 +26,7 @@ Data is published from the HA production system via a Node-RED REST/MQTT bridge 
 
 ---
 
-## 🔄 Prepare Node-RED
+## Prepare Node-RED
 
 A Node-RED flow is required to collect solar info data in JSON format.  
 The flow runs every minute and publishes a JSON string to:  
@@ -49,7 +49,7 @@ The flow runs every minute and publishes a JSON string to:
 
 ---
 
-## ▶️ Usage
+## Usage
 
 1. Edit `secrets.py` with your WiFi and MQTT configuration.
 2. Upload all files to your Raspberry Pi Pico W using Thonny or ampy.
@@ -70,17 +70,17 @@ The flow runs every minute and publishes a JSON string to:
 | **SCL** | GP27 (physical pin 32)    | I2C Clock     |
 | **SDA** | GP26 (physical pin 31)    | I2C Data      |
 
-> ⚠️ **Important**: LCD1602 often requires 5V power, unlike OLEDs which run on 3.3V.
+> **Important**: LCD1602 often requires 5V power, unlike OLEDs which run on 3.3V.
 
 > I2C device address: ['0x27']; Channel: 1
 
- ⚠️ **Hint**
+ **Hint**
 It might happen that after an I/O error (like EIO), a Pico 2 W sometimes needs a full unplug-replug to reset I2C hardware properly.
 That’s a common quirk when an I2C peripheral (like OLED) hangs or is partially initialized.
 
 ---
 
-## 📺 Display Example (LCD 1602)
+## Display Example (LCD 1602)
 
 ```
 S3306 G0     0753
@@ -96,7 +96,7 @@ H186  T3145  B100
 
 ---
 
-## 🛠️ Notes
+## Notes
 
 - Display updates on each MQTT message.
 - LCD stays awake via periodic backlight keep-alive (`lcd.backlight_on()`).
@@ -118,7 +118,7 @@ The rest of the driver functions remain the same.
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
 - Node-RED flow in HA production system handles REST + MQTT publishing.
 - MQTT topics are defined manually via `solar_sensors.yaml`.
