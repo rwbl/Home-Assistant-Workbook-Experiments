@@ -144,3 +144,12 @@ TOPIC_STATE_TEMPERATURE = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/temperature/state"
 ├── utils.py          # Onboard LED utility
 ├── README.md         # This file
 ```
+
+---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
+
