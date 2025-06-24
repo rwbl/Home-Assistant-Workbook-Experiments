@@ -88,3 +88,10 @@ When the light state is OFF, the LED is turned fully off.
 - This project assumes MQTT broker supports retained messages and Home Assistant is configured to use MQTT discovery
 
 ---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
+
