@@ -1,9 +1,10 @@
+# Quick Tips for Raspberry Pi Pico 2 W + Thonny
 
-## 🧠 Quick Tips for Raspberry Pi Pico 2 W + Thonny
+This working document captures key lessons learned and best practices related to the Raspberry Pi Pico W (version 1 & 2) + Thonny, based on the Hawe experiments.
 
-These are derived whilst developing Hawe experiments.
+---
 
-### 🚀 Flashing MicroPython Firmware
+## Flashing MicroPython Firmware
 
 1. **Put the Pico 2 W into bootloader mode**  
    - Hold the **BOOTSEL** button while connecting the Pico via USB  
@@ -14,13 +15,13 @@ These are derived whilst developing Hawe experiments.
      `Tools → Options → Interpreter → Install or update MicroPython`  
    - Choose: **Board: Raspberry Pi Pico W**
 
-> 📦 Recommended: Use [official MicroPython builds](https://micropython.org/download/rp2-pico-w/)
+> **Recommended**: Use [official MicroPython builds](https://micropython.org/download/rp2-pico-w/)
 
 ---
 
-### ▶️ Auto-start a Script on Boot
+## Auto-start a Script on Boot
 
-To run your experiment (e.g., `hawe_sht20.py`) automatically on boot:
+To run an experiment (e.g., `hawe_sht20.py`) automatically on boot:
 
 1. Create a `main.py` file with:
 
@@ -32,13 +33,13 @@ To run your experiment (e.g., `hawe_sht20.py`) automatically on boot:
 2. Save `main.py` to the Pico via:  
    `File → Save As… → MicroPython device`
 
-> ✅ On reboot, the Pico runs `main.py` automatically.
+> On reboot, the Pico runs `main.py` automatically.
 
 > Ensure to define globals for wlan & mqtt.
 
 ---
 
-### 💾 Fixing Thonny Memory or Connection Errors
+## Fixing Thonny Memory or Connection Errors
 
 If you see **`MemoryError`** or REPL connection issues:
 
@@ -49,7 +50,7 @@ If you see **`MemoryError`** or REPL connection issues:
 
 ---
 
-### 📡 Wi-Fi / MQTT Debug Tips
+## Wi-Fi / MQTT Debug Tips
 
 - Double-check `secrets.py` for correct Wi-Fi and MQTT credentials
 - Use the onboard LED or `print()` logs to indicate:
@@ -62,7 +63,7 @@ If you see **`MemoryError`** or REPL connection issues:
 
 ---
 
-### 📎 Best Practices
+## Best Practices
 
 - Keep code modular: `main.py`, `connect.py`, `utils.py`, etc.
 - Exclude sensitive or unnecessary files:
@@ -79,14 +80,25 @@ If you see **`MemoryError`** or REPL connection issues:
 
 ---
 
-### 🧰 Troubleshooting Checklist
+## Troubleshooting Checklist
 
 | Issue                           | Fix                                                                 |
 |--------------------------------|----------------------------------------------------------------------|
 | Pico not appearing as `RPI-RP2` | Hold **BOOTSEL** before plugging into USB                           |
-| Thonny shows REPL stuck         | Press **Ctrl + F2** a few times                                      |
-| `MemoryError` in REPL           | Use `gc.collect()` or simplify code                                  |
-| MQTT sensor not visible         | Check topic names, `retain=True`, and restart Home Assistant         |
-| Script doesn’t run on boot      | Make sure it’s named **`main.py`** and stored on the Pico device     |
+| Thonny shows REPL stuck         | Press **Ctrl + F2** a few times                                     |
+| `MemoryError` in REPL           | Use `gc.collect()` or simplify code                                 |
+| MQTT sensor not visible         | Check topic names, `retain=True`, and restart Home Assistant        |
+| Script doesn’t run on boot      | Make sure it’s named **`main.py`** and stored on the Pico device    |
 
 ---
+
+**Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
+
+---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
+
