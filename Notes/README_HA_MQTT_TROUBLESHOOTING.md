@@ -95,3 +95,10 @@ The *Hawe Pico Status* experiment is used as an example throughout.
 
 **Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
 
+---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
