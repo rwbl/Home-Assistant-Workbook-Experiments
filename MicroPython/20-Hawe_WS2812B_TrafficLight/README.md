@@ -95,7 +95,7 @@ hawe_trafficlight/
 
 ## Tested With
 
-- ESP8266 and ESP32
+- Raspberry Pi Pico 2 WH
 - Home Assistant MQTT integration (manual YAML config)
 - WS2812B 5V 3-pixel module
 - MQTT retained messages for light state
