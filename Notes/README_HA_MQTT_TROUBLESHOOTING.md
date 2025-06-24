@@ -1,22 +1,23 @@
-# Troubleshooting & Best Practices: Hawe Pico Status with Home Assistant & MQTT
+# Troubleshooting & Best Practices: Home Assistant MQTT
 
-This guide captures lessons learned and best practices for building **Home Assistant custom components using MQTT**, specifically from the development of the `Hawe Pico Status` experiment.
+This working document captures key lessons learned and best practices related to Home Assistant MQTT, based on the Hawe experiments.  
+The *Hawe Pico Status* experiment is used as an example throughout.
 
 ---
 
-## ⚠️ Common Pitfalls
+## MQTT Common Pitfalls
 
 ### 1. Incorrect MQTT Topic Naming
 
-- **Mistake:** Mixing hyphens, inconsistent casing, or deeply nested topics.
-- **Fix:** Use lowercase, flat topic structure like:
+- **Issue:** Mixing hyphens, inconsistent casing, or overly nested topics  
+- **Recommendation:** Use flat, lowercase topic structures such as:
   - `hawe/picostatus/uptime`
   - `homeassistant/sensor/hawe_picostatus_rssi/config`
 
 ### 2. Incomplete MQTT Discovery Payload
 
-- **Mistake:** Missing `object_id`, `unique_id`, or `device` in JSON config.
-- **Fix:** Include all keys:
+- **Issue:** Missing fields like `object_id`, `unique_id`, or `device`  
+- **Recommendation:** Include all required fields. Example:
   ```json
   {
     "state_topic": "hawe/picostatus/uptime",
@@ -32,64 +33,65 @@ This guide captures lessons learned and best practices for building **Home Assis
   }
   ```
 
-### 3. No Entities Created in HA
+### 3. MQTT Discovery – No Entities Appear in HA
 
-- **Mistake:** Discovery message malformed or state\_topic never publishes.
-- **Fix:**
-  - Check with MQTT Explorer or HA Developer Tools (MQTT > Listen)
-  - Validate JSON payload formatting
-  - Ensure device is online and publishes state after config
+- **Issue:** Discovery message malformed or `state_topic` never publishes  
+- **Recommendation:**
+  - Use MQTT Explorer or HA Developer Tools (MQTT > Listen)
+  - Validate the JSON payload structure
+  - Ensure the device is online and publishes a state message after the discovery config
 
-### 4. MQTT Config Not Reset
+### 4. MQTT Config Not Reset Properly
 
-- **Mistake:** Re-publishing to config topic without clearing previous retained config
-- **Fix:**
+- **Issue:** Re-publishing to a config topic without first clearing retained messages  
+- **Recommendation:**
   ```python
-  mqtt.publish(topic, b"", retain=True)  # Clear first
+  mqtt.publish(topic, b"", retain=True)  # Clear retained message
   time.sleep(1)
   mqtt.publish(topic, json_config.encode('utf-8'), retain=True)
   ```
 
 ### 5. Custom Component Over-Engineering
 
-- **Mistake:** Writing full Python `sensor.py`, `binary_sensor.py` modules for MQTT topics
-- **Fix:** Let the device publish discovery & state, and minimize HA-side logic.
-  - In our case, only `button.py` was needed on HA side.
+- **Issue:** Writing full `sensor.py`, `binary_sensor.py`, etc., when not needed  
+- **Recommendation:** Let the device handle discovery and state publication.  
+  In most cases, HA only needs a minimal component (e.g., just `button.py` was used in this project).
 
 ---
 
-## ✅ Best Practices Checklist
+## Best Practices Checklist
 
-| Area                  | Recommendation                               |
-| --------------------- | -------------------------------------------- |
-| **Topic Design**      | Flat, lowercase, no hyphens.                 |
-| **Device Info**       | Always provide in MQTT discovery payload.    |
-| **Use Retain**        | Set `retain=True` for all state + config.    |
-| **Entity Uniqueness** | Use stable `object_id` & `unique_id`.        |
-| **State Format**      | Plain strings (e.g. "12345", "192.168.1.2"). |
-| **Testing**           | Use HA Developer Tools > MQTT > Listen.      |
-| **Subscription**      | Ensure device subscribes to command topics.  |
-| **Logs**              | Print to Thonny log for debug.               |
-
----
-
-## 🌟 Pro Tips
-
-- After major MQTT changes, **delete retained messages** from broker (e.g. via MQTT Explorer)
-- **Restart HA** after changing MQTT topics or discovery format
-- Use a delay between clear & publish (`time.sleep(1)`) to ensure broker updates
-- For debugging, publish discovery manually from HA or MQTT CLI client
-- Avoid duplication: keep `object_id` consistent with state topic segment (e.g. `rssi`)
+| Area                  | Recommendation                                                                    |
+| --------------------- | --------------------------------------------------------------------------------- |
+| **Topic Design**      | Use flat, lowercase topics; avoid hyphens.                                        
+| **Device Info**       | Always include in the MQTT discovery payload.                                     |
+| **Use Retain**        | Set `retain=True` for both state and config topics.                               |
+| **Entity Uniqueness** | Use stable `object_id` and `unique_id` values.                                    |
+| **State Format**      | Use plain strings (e.g., `"12345"`, `"192.168.1.2"`).                             |
+| **Testing**           | Use HA Integrations > MQTT > Configure > Listen (e.g., `homeassistant/#`).        |
+| **Subscription**      | Ensure the device subscribes to relevant command topics.                          |
+| **Logs**              | Use Thonny to print debug messages for analysis.                                  |
 
 ---
 
-## 🚀 Conclusion
+## Pro Tips
 
-MQTT Discovery is powerful — when used right. The key is **precision in topics, naming, and payloads**. Avoid HA-side platform complexity where possible. Let the device describe itself over MQTT.
+- After major MQTT changes, **delete retained messages** using MQTT Explorer or similar tools  
+- **Restart Home Assistant** after modifying MQTT topics or discovery payloads  
+- Add a short delay between clearing and publishing config (`time.sleep(1)`) to ensure the broker updates properly  
+- For debugging, publish discovery messages manually via HA or MQTT CLI  
+- To avoid confusion, match `object_id` with the last segment of the `state_topic` (e.g., `rssi`)
 
 ---
 
-Happy tinkering! 🚀
+## Conclusion
 
-Part of the **Hawe IoT Learning Series**.
+- MQTT Discovery is powerful — when used correctly.
+- Success depends on **precise topic structure, consistent naming, and complete payloads**.
+- Minimize complexity on the Home Assistant side whenever possible.
+- Let your device describe itself over MQTT for simplicity and flexibility.
+
+---
+
+**Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
 
