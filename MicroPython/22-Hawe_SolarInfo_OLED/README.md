@@ -58,7 +58,7 @@ The flow runs every minute and the output of the flow publishes a JSON string to
 
 ---
 
-## 🧪 MQTT Topics (Received)
+## MQTT Topics (Received)
 
 | Entity                           | Topic                                        | Example    |
 |----------------------------------|----------------------------------------------|------------|
@@ -86,7 +86,7 @@ The flow runs every minute and the output of the flow publishes a JSON string to
 | **SDA**  | GP26 (physical pin 31)   | I2C Data (Blue)   |
 | **I2C**  | Address 0x3c, Channel: 1 |
 
-> ⚠️ **Important**: If the OLED freezes or throws `[Errno 5] EIO`, unplug and replug the board to reset I2C hardware.
+> **Important**: If the OLED freezes or throws `[Errno 5] EIO`, unplug and replug the board to reset I2C hardware.
 
 ---
 
