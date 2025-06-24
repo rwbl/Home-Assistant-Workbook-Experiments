@@ -1,4 +1,4 @@
-# 🧪 Home Assistant Workbook - Experiment Hawe_EnvSim
+# Home Assistant Workbook - Experiment Hawe_EnvSim
 
 This **Hawe** experiment simulates environment sensor values — **temperature**, **humidity**, and **pressure** — and publishes them via **MQTT** to **Home Assistant** using MQTT Discovery.
 
@@ -6,7 +6,7 @@ This is useful for developing and testing automation logic without connecting re
 
 ---
 
-## 🛰️ Simulation Overview
+## Simulation Overview
 
 - Random values generated for:
   - Temperature (°C)
@@ -18,37 +18,37 @@ This is useful for developing and testing automation logic without connecting re
 
 ---
 
-## 🔌 Hardware
+## Hardware
 
-- 🧠 **Microcontroller**: Raspberry Pi Pico W or ESP32
-- 🧪 **Sensor**: None – simulated via software
+- **Microcontroller**: Raspberry Pi Pico W or ESP32
+- **Sensor**: None – simulated via software
 
 ---
 
-## 💻 Software Stack
+## Software Stack
 
-- [🐍 MicroPython](https://micropython.org) v1.25.0  
+- [MicroPython](https://micropython.org) v1.25.0  
   Includes:
   - `umqtt` library
   - Custom modules:
     - `secrets.py`: Wi-Fi & MQTT credentials, `BASE_TOPIC`
     - `connect.py`: Handles `connect_wifi()` and `connect_mqtt()`
     - `utils.py`: Onboard LED and blink helper
-- [🧠 Thonny IDE](https://thonny.org) 4.1.7
-- [🏠 Home Assistant](https://www.home-assistant.io) 2025.6.x
+- [Thonny IDE](https://thonny.org) 4.1.7
+- [Home Assistant](https://www.home-assistant.io) 2025.6.x
   - [MQTT Integration](https://www.home-assistant.io/integrations/mqtt)
   - [Mosquitto Broker](https://mosquitto.org/)
 
 ---
 
-## 📡 MQTT Topics
+## MQTT Topics
 
 Configured in `secrets.py`:
 
 - **Discovery prefix**: `homeassistant`
 - **Base topic**: `hawe`
 
-> 🧠 MQTT Discovery format:  
+> MQTT Discovery format:  
 > `homeassistant/<component>/<unique_id>/config`
 
 | Topic                                                  | Description                                      |
@@ -63,7 +63,7 @@ Configured in `secrets.py`:
 
 ---
 
-## 🧩 Entities in Home Assistant
+## Entities in Home Assistant
 
 The following sensor entities are automatically created by Home Assistant:
 
@@ -72,11 +72,9 @@ sensor.hawe_envsim_temperature
 sensor.hawe_envsim_humidity
 sensor.hawe_envsim_pressure
 ```
-
-
 ---
 
-## 🖼️ Example Home Assistant Card
+## Example Home Assistant Dashboard Card
 
 ```yaml
 type: entities
@@ -102,7 +100,7 @@ title: Hawe EnvSim
 	- Publishes temperature, humidity, and pressure via MQTT
     - Home Assistant auto-creates sensor entities based on discovery
 
-## 📂 File Structure
+## File Structure
 ```
 14-Hawe_EnvSim/
 ├── hawe_envsim.py    # Main script
@@ -111,13 +109,3 @@ title: Hawe EnvSim
 ├── utils.py          # Onboard LED utility
 ├── README.md         # This file
 ```
-
-## 📜 License
-
-MIT License — use freely for educational and personal projects.
-
-## 👤 Author
-
-Developed by Robert W.B. Linn — for experimentation, learning, and integration with Home Assistant.
-
----
