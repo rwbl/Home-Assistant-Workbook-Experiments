@@ -109,3 +109,12 @@ title: Hawe EnvSim
 ├── utils.py          # Onboard LED utility
 ├── README.md         # This file
 ```
+
+---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
+
