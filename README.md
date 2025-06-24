@@ -45,9 +45,11 @@ Always test thoroughly and exercise caution when connecting hardware components 
 | **HaWe_WS2812B**               | Control a single LED                      | Manual      | `./18-Hawe_WS2812B`              |
 | **HaWe_WS2812B_TrafficLight**  | Control 3 LEDs red, yellow, green         | Manual      | `./20-Hawe_WS2812B_TrafficLight` |
 | **HaWe_SolarInfo_OLED**        | Display Solar info on 0.96" OLED display  | Manual      | `./22-HaWe_SolarInfo_OLED`       |
-| **HaWe_SolarInfo_ePaper**      | Display Solar info on 2.66" ePaper display| Manual      | `./22-HaWe_SolarInfo_ePaper`     |
+| **HaWe_SolarInfo_ePaper**      | Display Solar info on 2.66" ePaper display| Manual      | `./24-HaWe_SolarInfo_ePaper`     |
+| **HaWe_Pico_Status**           | Monitor your Raspberry Pi Pico W status   | MQTTAD      | `./26-HaWe_Pico_Status`          |
+| **HaWe_SolarInfo_LCD1602**     | Display Solar info on LCD1602 display     | Manual      | `./28-HaWe_SolarInfo_LCD1602`    |
 
-*(More experiments coming soon!)* Like BMP280, 7-segment LED display, LCD display, and distance sensors.
+*(More experiments in the pipeline!)* Like BMP280, 7-segment LED display, and distance sensors.
 
 ⚠️ **Note:** Some experiments include test scripts so you can try the hardware even without WiFi or MQTT.
 
