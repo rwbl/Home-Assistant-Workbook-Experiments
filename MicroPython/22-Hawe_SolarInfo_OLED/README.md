@@ -4,14 +4,14 @@ This folder contains the MicroPython code and resources for the **Hawe_SolarInfo
 
 ---
 
-## 📋 Description
+## Description
 
 This experiment reads live solar power data from a Home Assistant production system via MQTT and displays it on a 0.96" 4-pin white OLED (I2C).  
 Data is published from the HA production system via a Node-RED REST/MQTT bridge and visualized on the development system.
 
 ---
 
-## 📁 Contents
+## Contents
 
 | File                                      | Purpose                                         |
 |-------------------------------------------|-------------------------------------------------|
@@ -25,7 +25,7 @@ Data is published from the HA production system via a Node-RED REST/MQTT bridge 
 
 ---
 
-## 🔄 Prepare Node-RED
+## Prepare Node-RED
 
 A Node-RED flow is required to collect solar info data in JSON format.  
 The flow runs every minute and the output of the flow publishes a JSON string to the HA entity:  
@@ -48,7 +48,7 @@ The flow runs every minute and the output of the flow publishes a JSON string to
 
 ---
 
-## ▶️ Usage
+## Usage
 
 1. Edit `secrets.py` with your WiFi and MQTT configuration.
 2. Upload all files to your Raspberry Pi Pico W using Thonny or ampy.
@@ -62,19 +62,19 @@ The flow runs every minute and the output of the flow publishes a JSON string to
 
 | Entity                           | Topic                                        | Example    |
 |----------------------------------|----------------------------------------------|------------|
-| ☀️ Solar Power Input         | `homeassistant/sensor/power_from_solar`      | `1080`     |
-| 🔌 Grid Power Input          | `homeassistant/sensor/power_from_grid`       | `4`        |
-| 🔁 Grid Power Output         | `homeassistant/sensor/power_to_grid`         | `814`      |
-| 🏡 Power to House            | `homeassistant/sensor/power_to_house`        | `266`      |
-| ⚡ Power to Battery (Charging) | `homeassistant/sensor/power_to_battery`      | `100`      |
-| ⚡ Power from Battery (Discharging) | `homeassistant/sensor/power_from_battery`    | `0`        |
-| 🔋 Battery Charge State      | `homeassistant/sensor/power_battery_charge`  | `100`      |
-| 🗓️ Date Stamp            | `homeassistant/sensor/power_date_stamp`      | `20250619` |
-| ⏰ Time Stamp             | `homeassistant/sensor/power_time_stamp`     | `1617`     |
+| Solar Power Input                | `homeassistant/sensor/power_from_solar`      | `1080`     |
+| Grid Power Input                 | `homeassistant/sensor/power_from_grid`       | `4`        |
+| Grid Power Output                | `homeassistant/sensor/power_to_grid`         | `814`      |
+| Power to House                   | `homeassistant/sensor/power_to_house`        | `266`      |
+| Power to Battery (Charging)      | `homeassistant/sensor/power_to_battery`      | `100`      |
+| Power from Battery (Discharging) | `homeassistant/sensor/power_from_battery`    | `0`        |
+| Battery Charge State             | `homeassistant/sensor/power_battery_charge`  | `100`      |
+| Date Stamp                       | `homeassistant/sensor/power_date_stamp`      | `20250619` |
+| Time Stamp                       | `homeassistant/sensor/power_time_stamp`      | `1617`     |
 
 ---
 
-## 🔌 Wiring
+## Wiring
 
 ### OLED 0.96" I2C Display
 
@@ -90,14 +90,14 @@ The flow runs every minute and the output of the flow publishes a JSON string to
 
 ---
 
-## 📺 Display Example
+## Display Output Example
 
 ```
 | S:1553W | G:0W    |
 | H:230W  | T:1323W |
 | B:+0W   | L:100%  |
-|                    |
-|2025-06-19 11:10    |
+|                   |
+|2025-06-19 11:10   |
 ```
 
 - `S` = Solar
@@ -109,7 +109,7 @@ The flow runs every minute and the output of the flow publishes a JSON string to
 
 ---
 
-## 🛠️ Notes
+## Notes
 
 - Display will auto-refresh on every MQTT update.
 - If OLED is not connected, script continues with MQTT logging only.
@@ -118,25 +118,16 @@ The flow runs every minute and the output of the flow publishes a JSON string to
 
 ---
 
-## ✍️ ToDo
+## ToDo
 
 - Enhance formatting with icons, arrows, or blinking alerts.
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
 - Node-RED flow in HA production system handles REST + MQTT publishing.
 - MQTT topics are defined manually via `solar_sensors.yaml` (no auto-discovery).
-- Lovelace Dashboard displays values using standard MQTT sensors.
+- HA Lovelace Dashboard displays values using standard MQTT sensors.
 
 ---
-
-## 📌 License
-
-MIT License. See root project license in `../README.md`.
-
----
-
-**✨ Enjoy your Hawe solar info display! ✨**
-
