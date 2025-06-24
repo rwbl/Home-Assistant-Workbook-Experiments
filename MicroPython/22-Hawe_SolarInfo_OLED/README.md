@@ -131,3 +131,10 @@ The flow runs every minute and the output of the flow publishes a JSON string to
 - HA Lovelace Dashboard displays values using standard MQTT sensors.
 
 ---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
+
