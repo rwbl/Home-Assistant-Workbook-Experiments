@@ -5,7 +5,7 @@ The lights are controlled over MQTT and integrate with Home Assistant via autodi
 
 ---
 
-## 🚦 Hardware Setup
+## Hardware Setup
 
 - Microcontroller: Raspberry Pi Pico 2 WH
 - WS2812B LED strip with 3 LEDs
@@ -15,18 +15,18 @@ The lights are controlled over MQTT and integrate with Home Assistant via autodi
 
 ---
 
-## 🔌 Dependencies
+## Dependencies
 
 - MicroPython
-- `neopixel` module
-- Custom modules (you provide):
+  - `neopixel` module
+- Custom modules (own developments):
   - `secrets.py`: Contains `BASE_TOPIC`, Wi-Fi, and MQTT credentials
   - `connect.py`: Contains `connect_wifi()` and `connect_mqtt()` functions
   - `utils.py`: LED blink and onboard control
 
 ---
 
-## 📦 MQTT Topics
+## MQTT Topics
 
 | Topic                                | Description                      |
 |-------------------------------------|----------------------------------|
@@ -45,7 +45,7 @@ Each `set` topic expects a JSON payload:
 
 ---
 
-## 🧠 Code Behavior
+## Code Behavior
 
 - Only one light can be ON at a time
 - State is tracked and published back on state topics
@@ -54,8 +54,8 @@ Each `set` topic expects a JSON payload:
 
 ---
 
-## 🏠 Home Assistant YAML Example
-
+## Home Assistant YAML Example
+Define switch entity.
 ```yaml
 # Traffic Light Red Switch
 - name: Traffic Light Red
@@ -80,7 +80,7 @@ Each `set` topic expects a JSON payload:
 
 ---
 
-## 📂 File Structure
+## File Structure
 
 ```plaintext
 hawe_trafficlight/
@@ -93,7 +93,7 @@ hawe_trafficlight/
 
 ---
 
-## 🧪 Tested With
+## Tested With
 
 - ESP8266 and ESP32
 - Home Assistant MQTT integration (manual YAML config)
@@ -101,14 +101,3 @@ hawe_trafficlight/
 - MQTT retained messages for light state
 
 ---
-
-## ✅ Done
-
-- MQTT working like a charm
-- Autodiscovery YAML tested
-- LED colors correctly mapped (GRB)
-- Onboard LED feedback
-
----
-
-Happy hacking!
