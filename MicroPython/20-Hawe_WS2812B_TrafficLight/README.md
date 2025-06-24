@@ -101,3 +101,10 @@ hawe_trafficlight/
 - MQTT retained messages for light state
 
 ---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
+
