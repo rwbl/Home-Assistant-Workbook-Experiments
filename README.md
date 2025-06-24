@@ -10,11 +10,11 @@ This workbook is a practical guide for makers, tinkerers, and hobbyists who want
 - Structure modular, reusable firmware using **MicroPython**  
 - Extend experiments to other platforms like ESPHome or B4R  
 
-## ℹ️ About This Project
+## About This Project
 
 I created this project to deepen my understanding of **MicroPython**, **MQTT**, and **Home Assistant**, and to explore and tinker with microcontrollers such as the **Raspberry Pi Pico, Pico 2 WH** and **ESP32**.
 
-## ⚠️ Disclaimer
+## Disclaimer
 
 This project is developed for **personal, educational use only**.  
 All experiments and code are provided _as-is_ and should be used **at your own risk**.  
@@ -35,7 +35,7 @@ Always test thoroughly and exercise caution when connecting hardware components 
 
 ---
 
-## 🧪 Available Experiments
+## Available Experiments
 
 | Experiment                     | Description                               | Entity Type | Code Folder                      |
 |--------------------------------|-------------------------------------------|-------------|----------------------------------|
@@ -51,18 +51,18 @@ Always test thoroughly and exercise caution when connecting hardware components 
 
 *(More experiments in the pipeline!)* Like BMP280, 7-segment LED display, and distance sensors.
 
-⚠️ **Note:** Some experiments include test scripts so you can try the hardware even without WiFi or MQTT.
+**Note:** Some experiments include test scripts so you can try the hardware even without WiFi or MQTT.
 
 ---
 
-## 🔌 Hardware
+## Hardware
 
-- **Microcontroller:** Raspberry Pi Pico W H (RP2040)  
-- **Example Modules:** SHT20 sensor, Rotary Encoder with Push-Button, WS2812B LEDs  
+- **Microcontroller:** Raspberry Pi Pico 1 & 2 W H (RP2040)  
+- **Example Modules:** SHT20 sensor, Rotary Encoder with Push-Button, WS2812B LEDs, various displays LCD1602 & OLED & ePaper
 
 ---
 
-## 💻 Software Stack
+## Software Stack
 
 - [MicroPython](https://micropython.org) v1.25.0  
   - Includes modules like `neopixel`, `umqtt`  
@@ -78,7 +78,7 @@ Always test thoroughly and exercise caution when connecting hardware components 
 
 ---
 
-## 📦 Structure
+## Structure
 
 ### Experiments
 
@@ -95,7 +95,7 @@ Example:
 ├── README.md         # Experiment documentation
 ```
 
-## 📘 Naming Conventions
+## Naming Conventions
 
 | Type                | Convention                       | Example                             |
 |---------------------|----------------------------------|-------------------------------------|
@@ -107,7 +107,7 @@ Example:
 
 ---
 
-### 🧾 YAML Structure
+### YAML Structure
 
 Sensor, switch, and binary sensor configurations live in YAML files included from your configuration.yaml.
 These files are created and edited using Home Assistant's File Editor.
@@ -189,7 +189,7 @@ title: Hawe Environment
 
 ---
 
-## 📡 MQTT Integration
+## MQTT Integration
 
 MQTT is used for communication between the MCU and Home Assistant.
 
@@ -259,7 +259,7 @@ Then:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Requirements
 
@@ -281,7 +281,7 @@ Then:
 
 ---
 
-## 💡 Why Use MicroPython?
+## Why Use MicroPython?
 
 - Easy-to-read syntax (ideal for beginners)
 - Visual flow and modular code structure
@@ -290,22 +290,21 @@ Then:
 
 ---
 
-## 🛠️ Future Topics
+## Future Topics
 
 - Custom MQTT-based HA devices or HA Custom Component
-- B4R equivalents of selected Hawe experiments
 - Manual vs auto MQTT configuration
 - BLE sensors (e.g., BMP280, VL53L0X)
 - ESPHome integration options
+- B4R equivalents of selected Hawe experiments
 
 ---
 
-## 📚 Additional Documentation
-- README_HA_MQTT_Tips.md
-- README_Pico2W_Tips.md
+## Additional Documentation
+See folder Notes.
 
 ---
-## 🌐 Credits
+## Credits
 
 This project was made possible thanks to:
 - **Home Assistant** — the open-source home automation platform powering the smart home ecosystem.
@@ -314,7 +313,7 @@ This project was made possible thanks to:
 
 ---
 
-## 📜 License
+## License
 
 MIT License — feel free to use, remix, and learn from it.
 
