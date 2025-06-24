@@ -144,7 +144,7 @@ hawe_solarinfo_epaper.main()
 - You can safely reboot the Pico (or unplug/replug) to test auto-start functionality.
 - If an error occurs on boot, Thonny's "Stop/Restart backend" option or holding BOOTSEL + reflash can help recover.
 
-💡 Tip: Test your script manually first before setting it to autostart with main.py.
+*Tip*: Test your script manually first before setting it to autostart with main.py.
 
 ---
 
@@ -159,7 +159,7 @@ hawe_solarinfo_epaper.main()
 
 - Node-RED flow in HA production system handles REST + MQTT publishing.
 - MQTT topics are defined manually via `solar_sensors.yaml` (no auto-discovery).
-- Lovelace Dashboard displays values using standard MQTT sensors.
+- HA Lovelace Dashboard displays values using standard MQTT sensors.
 
 ---
 
@@ -169,4 +169,3 @@ MIT License. See root project license in `../README.md`.
 
 ---
 
-**✨ Enjoy your Hawe solar info ePaper display! ✨**
