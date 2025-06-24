@@ -4,7 +4,7 @@
 
 ---
 
-## 💡 Overview
+## Overview
 
 This Hawe experiment demonstrates how to use a **MicroPython script running on a Raspberry Pi Pico W** to:
 
@@ -17,7 +17,7 @@ It uses **MQTT Discovery** to dynamically create entities in Home Assistant — 
 
 ---
 
-## 🧰 Hardware Requirements
+## Hardware Requirements
 
 - Raspberry Pi Pico W
 - Wi-Fi network
@@ -26,7 +26,7 @@ It uses **MQTT Discovery** to dynamically create entities in Home Assistant — 
 
 ---
 
-## 📁 Folder Structure
+## Folder Structure
 
 ```
 hawe_pico_status/
@@ -38,7 +38,7 @@ hawe_pico_status/
 
 ---
 
-## 🔐 `secrets.py` Example
+## `secrets.py` Example
 
 ```python
 WIFI_SSID = "YourWiFiSSID"
@@ -55,7 +55,7 @@ DISCOVERY_PREFIX = "homeassistant"
 
 ---
 
-## 🧠 What It Publishes
+## What It Publishes
 
 | Entity                                  | Type          | MQTT Topic                           | Purpose                     |
 | --------------------------------------- | ------------- | ------------------------------------ | --------------------------- |
@@ -68,14 +68,14 @@ DISCOVERY_PREFIX = "homeassistant"
 
 ---
 
-## 🛆 Home Assistant Setup
+## Home Assistant Setup
 
 For the entities, there is no manual YAML needed — the Pico W publishes MQTT discovery messages.\
 Just ensure your MQTT integration is enabled and connected.
 
 The uptime is displayed in seconds, which is not user friendly, so a helper entity has been defined to show the uptime in date-friendly format.
 
-> 📝 **Important Note:**
+> **Important Note:**
 > On some Pico W devices, the value of `time.time()` does not start at 0, which may lead to incorrect uptime values.
 >
 > To fix this, adjust the code in your MicroPython script:
@@ -120,7 +120,7 @@ The uptime is displayed in seconds, which is not user friendly, so a helper enti
 
 ---
 
-## 📊 Dashboard Card
+## HA LOvaLace Dashboard Card
 
 A dashboard card is created showing all defined entities:
 
@@ -143,7 +143,7 @@ title: Hawe Pico Status
 
 ---
 
-## ▶️ MicroPython Boot Process
+## MicroPython Boot Process
 
 1. Connect to Wi-Fi
 2. Connect to MQTT broker
@@ -154,7 +154,7 @@ title: Hawe Pico Status
 
 ---
 
-## 🔘 Using the Dashboard
+## Using the Dashboard
 
 - Add the 2 buttons:
   - `Request Status` → Pico replies with uptime, RSSI, IP.
@@ -163,7 +163,7 @@ title: Hawe Pico Status
 
 ---
 
-## 🔮 Test Procedure
+## Test Procedure
 
 1. Upload `hawe_pico_status.py` to the Pico W via Thonny.
 2. Watch Thonny console for:
@@ -175,7 +175,7 @@ title: Hawe Pico Status
 
 ---
 
-## ↺ Topics Used
+## Topics Used
 
 ### State Topics
 
@@ -206,7 +206,7 @@ homeassistant/button/hawe_picostatus_toggle_led/config
 
 ---
 
-## ✅ Summary
+## Summary
 
 You now have a fully working experiment that:
 
@@ -216,8 +216,9 @@ You now have a fully working experiment that:
 
 ---
 
-## 🧠 Credits
+## License
 
-This experiment is part of the **Home Assistant Workbook Experiments** (Hawe) by Robert W.B. Linn.
+MIT License. See root project license in `../README.md`.
 
-Special thanks to the Home Assistant project and community, and to the developers of [umqtt.simple] used in MicroPython for MQTT connectivity.
+---
+
