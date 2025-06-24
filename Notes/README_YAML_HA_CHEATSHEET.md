@@ -1,10 +1,10 @@
 # YAML for Home Assistant: Cheat Sheet
 
-This cheat sheet summarizes YAML usage within Home Assistant (HA), with focus on syntax, best practices, common tasks, and helpful tips.
+This working document summarizes **YAML** usage within Home Assistant (HA), with focus on syntax, best practices, common tasks, and helpful tips.
 
 ---
 
-## 📃 YAML Basics
+## YAML Basics
 
 ```yaml
 # Key-value pair
@@ -27,7 +27,7 @@ parent:
 
 ---
 
-## 🔹 Common HA Entities
+## Common HA Entities
 
 ```yaml
 sensor:
@@ -43,7 +43,7 @@ sensor:
 
 ---
 
-## 🧠 Templates in YAML (Jinja2)
+## Templates in YAML (Jinja2)
 
 ```yaml
 value_template: "{{ value_json.temperature }}"
@@ -67,7 +67,7 @@ availability_template: "{{ value_json.online == true }}"
 
 ---
 
-## 🦇 Local Variables
+## Local Variables
 
 Use `set` inside `jinja` blocks:
 ```yaml
@@ -77,7 +77,7 @@ Use `set` inside `jinja` blocks:
 
 ---
 
-## ✅ Best Practices
+## Best Practices
 
 - Use consistent spacing (2 spaces).
 - Comment your YAML for clarity.
@@ -87,7 +87,7 @@ Use `set` inside `jinja` blocks:
 
 ---
 
-## ⚠️ Common Pitfalls
+## Common Pitfalls
 
 - Using **tabs** instead of spaces.
 - Forgetting to quote strings with colons or special characters.
@@ -96,7 +96,7 @@ Use `set` inside `jinja` blocks:
 
 ---
 
-## 🔧 Advanced YAML Tricks
+## Advanced YAML Tricks
 
 ### Anchors and Aliases
 Avoid duplication:
@@ -125,7 +125,7 @@ condition:
 
 ---
 
-## 📅 Common Use Cases
+## Common Use Cases
 
 ### MQTT Binary Sensor
 ```yaml
@@ -149,7 +149,7 @@ sensor:
 
 ---
 
-## 📍 Debugging & Tools
+## Debugging & Tools
 
 - **Check config**: `Developer Tools > YAML > Check Configuration`
 - **Test templates**: `Developer Tools > Template`
@@ -158,7 +158,7 @@ sensor:
 
 ---
 
-## 📂 Organizing Configs
+## Organizing Configs
 
 Split config via:
 ```yaml
@@ -171,7 +171,7 @@ automation: !include automations.yaml
 
 ---
 
-## 🌟 Tips
+## Tips
 
 - Use `| int(0)` or `| float(0)` to avoid crashes on null/missing values.
 - Use `| default('N/A')` to set fallback values.
@@ -179,5 +179,13 @@ automation: !include automations.yaml
 
 ---
 
-**✨ Enjoy clean and powerful HA YAML setups! ✨**
+**Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
+
+---
+
+## License
+
+MIT License. See root project license in `../README.md`.
+
+---
 
