@@ -1,11 +1,11 @@
-# 🏠 Home Assistant Workbook - Experiment Hawe_SHT20
+# Home Assistant Workbook - Experiment Hawe_SHT20
 
 This Hawe project reads **temperature**, **humidity**, and **dewpoint** from a **SHT20 sensor** using MicroPython.  
 The data is published via **MQTT** and integrated with **Home Assistant** using a discovery-like YAML configuration.
 
 ---
 
-## 🔧 SHT20 Sensor
+## SHT20 Sensor
 
 - A digital temperature and humidity sensor with high reliability and long-term stability.
 - Communicates over **I2C** (default address `0x40`) using specific command codes:
@@ -15,16 +15,16 @@ The data is published via **MQTT** and integrated with **Home Assistant** using 
 
 ---
 
-## 🔌 Hardware
+## Hardware
 
-- 🧠 **Microcontroller**: Raspberry Pi Pico W (RP2040)
-- 🌡️ **Sensor**: SHT20
+- **Microcontroller**: Raspberry Pi Pico W (RP2040)
+- **Sensor**: SHT20
 
 ---
 
-## 💻 Software Stack
+## Software Stack
 
-- [🐍 MicroPython](https://micropython.org) v1.25.0  
+- [MicroPython](https://micropython.org) v1.25.0  
   Includes:
   - `neopixel` module
   - `umqtt` library
@@ -32,14 +32,14 @@ The data is published via **MQTT** and integrated with **Home Assistant** using 
     - `secrets.py`: Wi-Fi & MQTT credentials, `BASE_TOPIC`
     - `connect.py`: Handles `connect_wifi()` and `connect_mqtt()`
     - `utils.py`: LED blink and onboard control
-- [🧠 Thonny IDE](https://thonny.org) 4.1.7
-- [🏠 Home Assistant](https://www.home-assistant.io) 2025.6.x
+- [Thonny IDE](https://thonny.org) 4.1.7
+- [Home Assistant](https://www.home-assistant.io) 2025.6.x
   - [MQTT Integration](https://www.home-assistant.io/integrations/mqtt)
   - [Mosquitto Broker](https://mosquitto.org/)
 
 ---
 
-## 🔗 Wiring Diagram
+## Wiring Diagram
 
 | SHT20 Pin | Pico 2 W Pin | Function                   |
 |----------:|:-------------|:---------------------------|
@@ -50,14 +50,14 @@ The data is published via **MQTT** and integrated with **Home Assistant** using 
 
 ---
 
-## 📡 MQTT Topics
+## MQTT Topics
 
 Set in `secrets.py`:
 
 - **Discovery prefix**: `homeassistant`
 - **Base topic**: `hawe`
 
-> 🔔 **Reminder**: Discovery syntax  
+> **Reminder**: MQTT Discovery syntax  
 > `homeassistant/<component>/<unique_id>/config`
 
 | Topic                                                | Description                                            |
@@ -72,7 +72,7 @@ Set in `secrets.py`:
 
 ---
 
-## 🔍 MQTT Entities in Home Assistant
+## MQTT Entities in Home Assistant
 ```
 sensor.hawe_sht20_temperature
 sensor.hawe_sht20_humidity
@@ -81,7 +81,7 @@ sensor.hawe_sht20_dewpoint
 
 ---
 
-## 🖼️ Home Assistant Card
+## Home Assistant Dashboard Card
 The 3 entities are defined in the Home Assistant dashboard as a card entity (UI widget & card view).
 ```
 type: entities
@@ -98,7 +98,7 @@ entities:
 title: Hawe SHT20
 ```
 
-## ⚙️ Code Behavior Summary
+## Code Behavior Summary
 
 1. Initialize SHT20
 2. Connect to Wi-Fi
@@ -110,7 +110,7 @@ title: Hawe SHT20
 
 ---
 
-## 💬 MQTT Discovery Example (MicroPython)
+## MQTT Discovery Example (MicroPython)
 
 ```python
 DEVICE_NAME = "Hawe SHT20"
@@ -134,7 +134,7 @@ TOPIC_STATE_TEMPERATURE = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/temperature/state"
 
 ---
 
-## 📂 File Structure
+## File Structure
 
 ```plaintext
 14-Hawe_SHT20/
@@ -144,16 +144,3 @@ TOPIC_STATE_TEMPERATURE = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/temperature/state"
 ├── utils.py          # Onboard LED utility
 ├── README.md         # This file
 ```
-
----
-
-## 📜 License
-
-MIT License — feel free to use, remix, and learn from it.
-
----
-
-## 👤 Author
-
-Developed by **Robert W.B. Linn** – powered by curiosity and AI assistance.
-
