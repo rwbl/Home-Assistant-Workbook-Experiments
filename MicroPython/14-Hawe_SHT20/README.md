@@ -81,7 +81,7 @@ sensor.hawe_sht20_dewpoint
 
 ---
 
-## Home Assistant Dashboard Card
+## HA Lovelace Dashboard Card
 The 3 entities are defined in the Home Assistant dashboard as a card entity (UI widget & card view).
 ```
 type: entities
