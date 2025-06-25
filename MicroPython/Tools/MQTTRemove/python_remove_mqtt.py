@@ -27,12 +27,12 @@ from paho.mqtt.client import CallbackAPIVersion
 import time
 
 # WiFi & MQTT configuration
-WIFI_SSID = 'Zuse'                  # 'YourWiFiSSID'
-WIFI_PASS = '83425399897672098612'  # 'YourWiFiPassword'
-MQTT_BROKER = '192.168.1.124'       # Replace with your MQTT broker IP
+WIFI_SSID = 'YourWiFiSSID'
+WIFI_PASS = 'YourWiFiPassword'
+MQTT_BROKER = 'NNN.NNN.NNN.NNN'       # Replace with your MQTT broker IP
 MQTT_PORT = 1883
-MQTT_USER = 'rwbl'                  #'mqtt_user'
-MQTT_PASS = 'shrdlu'                #'mqtt_password'
+MQTT_USER = 'mqtt_user'
+MQTT_PASS = 'mqtt_password'
 
 MATCH_PREFIXES = [
     "homeassistant/sensor/hawe_envsim_temperature/config",
