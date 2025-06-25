@@ -1,0 +1,396 @@
+﻿Build1=Default,B4RDev
+Group=Default Group
+Library1=rcore
+Library2=resp8266wifi
+Library3=rmqtt
+Library4=rrandomaccessfile
+Library5=resp32ledcontrol
+Module1=|relative|..\MQTTMod
+Module2=|relative|..\Utils
+Module3=|relative|..\WiFiMod
+NumberOfFiles=0
+NumberOfLibraries=5
+NumberOfModules=3
+Version=4
+@EndOfDesignText@
+' File:		Hawe_RotaryLight.b4r
+' Project:	Home Assistant Workbook Experiments (Hawe).
+' Date: 	See globals VERSION
+' Author:	Robert W.B. Linn
+' Brief:	HA Light experiment with an ESP32 + Rotary Encode & Push-Button.
+'			Set the light brightness 0-255 (0-100) and the state on or off.
+' Hardware:	ESP32-Wrover Kit (ESP32 Dev Module, COM4), ELV PAD4 Rotary Encoder.
+' Software:	B4R v4.00 (64 bit), arduino-cli 1.22, Java JDK 14, Additional libraries rESP8266WiFi 1.60, rMQTT v1.40, rRandomAccessFile v1.91, rESP32LEDControl v1.00.
+' Notes:	The HA light entity is created using MQTT Discovery.
+'			HA entities created: 		light.hawe_rotarylight
+'			Payload Light Brightness:	{"state":"ON","brightness":200}
+'			Payload Light ON: 			{"state":"ON","brightness":200}
+'			Payload Light OFF: 			{"state":"OFF","brightness":200}
+'    		Subscribe to: 				hawe/rotarylight/set
+'			Payload received:			[MQTT_MessageArrived] Topic=hawe/rotarylight/set, Payload={"state":"ON","brightness":36}
+'										(if the HA Light brightness has changed via HA UI)
+'										[MQTT_MessageArrived] Topic=hawe/rotarylight/set, Payload={"state":"ON"}
+'										(if the HA Light state ON or OFF has changed via HA UI)
+'
+'			MQTT payloads are hardcoded As global strings. Not making use of JoinStrings Or concatenation To avoid memory issues.
+'			Long MQTT payloads like AutoDiscovery config, are send in chunks because payload length > 128.
+'			MQTT methods are using IDE logging.
+' Secrets:	Defined in WiFiMod & MQTTMod.
+' Wiring
+' Keyes KY-50	
+' Encoder	= ESP32
+' CLK		= D18 (Green)
+' DI		= D19 (Pink)
+' SW		= D21  (Yellow)
+' +			= 3.3V Or 5V (if onboard pull-up resistors) (Red)
+' GND		= GND (Black)
+'
+' ELV PAD4 Rotary Encoder 3.3V (If 5V then voltage divider required)
+' Encoder (Label)	= ESP32
+' CLK (A)			= D18 (Green)
+' DI (B)			= D19 (Pink)
+' SW (T1)			= D21 (Yellow)
+' not used			= 3.3V (Red)
+' GND (T2)			= GND (Black)
+' GND   			= GND (Gray)
+
+#Region Project Attributes
+	#AutoFlushLogs: True
+	#CheckArrayBounds: True
+	#StackBufferSize: 600
+#End Region
+
+Sub Process_Globals
+	Private VERSION As String = "Hawe Rotary Light v20250625"
+
+	' Communication
+	Public SerialLine As Serial
+	Public Serial1 As Serial
+
+	' MQTT
+	Private MQTT_CLIENT_ID As String = "haweclient"
+
+	' Flag to use Autodiscovery.
+	' If not, the device is manually created in HA.
+	Private MQTTAD_USE As Boolean = True	'ignore
+
+    ' homeassistant/light/hawe/rotarylight/availability
+	Private MQTT_STATE_TOPIC_AVAILABILITY As String = "homeassistant/light/hawe/rotarylight/availability"
+	
+	' Autodiscovery topics
+	
+	Private MQTT_CONFIG_TOPIC_ROTARYLIGHT As String = "homeassistant/light/hawe_rotarylight/config"
+
+	' Autodiscovery payloads (hardcoded exactly)
+	Private MQTT_CONFIG_PAYLOAD_ROTARYLIGHT As String = _
+	"{" _
+	  """name"":""HaWe RotaryLight""," _
+	  """object_id"":""hawe_rotarylight""," _
+	  """unique_id"":""hawe_rotarylight""," _
+	  """schema"":""json""," _
+	  """state_topic"":""hawe/rotarylight/state""," _
+	  """command_topic"":""hawe/rotarylight/set""," _
+	  """brightness"":true," _
+	  """device_class"":""light""," _  ' optional, might help with display
+	  """device"":{""identifiers"":[""rotarylight""],""name"":""Hawe RotaryLight""}" _
+	"}"
+	
+	' State topics
+	Private MQTT_STATE_TOPIC_ROTARYLIGHT_STATE As String = "hawe/rotarylight/state"
+	Private MQTT_STATE_TOPIC_ROTARYLIGHT_COMMAND As String = "hawe/rotarylight/set"
+
+	' When button pressed
+	Private MQTT_PAYLOAD_ROTARYLIGHT_PRESSED As String = "1"	'ignore
+	' When button released
+	Private MQTT_PAYLOAD_ROTARYLIGHT_RELEASED As String = "0"	'ignore
+
+	' Set state ON or OFF and brightness 0-255
+	Private MQTT_PAYLOAD_ROTARYLIGHT_BRIGHTNESS As String = _
+	"{" _
+		"""state"":""#STATE#""," _
+		"""brightness"":#BRIGHTNESS#" _
+	"}"
+
+	' Timer Check MQTTAD
+	Private MQTTCheckEntityTimer As Timer
+	Private MQTTCHECKENTITYTIMER_INTERVAL As ULong = 1000	' ms, every 1 second
+	Private MQTTCHECKENTITYTIMER_MAX As UInt = 60			' check retained entity for max 60 seconds then publish MQTTAD
+	Private CheckEntityTimerCounter As UInt = 0				'
+	' Retained config topic detection
+	Private TopicConfigReceived As Boolean = False
+
+	'INFO Remove MQTTAD config topic using mosquitto client
+	'mosquitto_pub -h <broker_ip> -u <user> -P <pass> -t "homeassistant/light/hawe/rotarylight/config" -n -r
+
+	' Rotary encoder pins
+	Private pinA As Pin
+	Private pinANr As Byte = 18
+	Private pinB As Pin
+	Private pinBNr As Byte = 19
+	Private lastEncoded As Byte = 0
+	Private encoderPos As Int = 0
+	Private pinBtn As Pin
+	Private pinBtnNr As Byte = 21
+	Private pinBtnState As Boolean = False
+
+	' LED
+	Private led As ESP32LEDControl
+	Private ledPinNr As Byte = 2
+
+	' Light - Helper to keep the state of the HA light
+	Private LightState As Boolean = False		' True = ON, False = OFF
+	Private LightStateLast As Boolean = False	' Default state if nothing received
+	Private LightBrightness As Byte = 0			' Brightness (0–255), start at 0 brightness (off)
+	Private LightBrightnessLast As Byte = 255	' Default brightness if nothing is received yet
+	
+	' PWM settings
+	Private freq As Int = 5000
+	Private resolution As Int = 8
+
+	Public RotaryTimer As Timer
+
+	' Helper
+	Private bc As ByteConverter
+End Sub
+
+Private Sub AppStart
+	' Init serialline
+	SerialLine.Initialize(115200)
+	Log(CRLF, "[AppStart]", VERSION)
+
+	' Initiliaze ledcontrol
+	Dim result As Boolean = led.Initialize(ledPinNr, freq, resolution)	'led.FREQUENCY_DEFAULT, led.RESOLUTION_DEFAULT)
+	If Not(result) Then
+		Log("[AppStart][ERROR][Initialize] LED not initialized. Check log.")
+		Return
+	Else
+		Log("[AppStart][Initialize] LED OK.")
+	End If
+
+	' Init pins
+	pinA.Initialize(pinANr, pinA.MODE_INPUT_PULLUP)
+	pinB.Initialize(pinBNr, pinB.MODE_INPUT_PULLUP)
+	pinBtn.Initialize(pinBtnNr, pinBtn.MODE_INPUT_PULLUP)
+
+	' Init timer listening to rotary encoder or push-button changes.
+	' Set to 5ms because
+	RotaryTimer.Initialize("RotaryTimer_Tick", 5)
+	' Timer is enabled after MQTT connected
+	RotaryTimer.Enabled = False
+
+	MQTTCheckEntityTimer.Initialize("MQTTCheckEntityTimer_Tick", MQTTCHECKENTITYTIMER_INTERVAL)
+	MQTTCheckEntityTimer.Enabled = False
+	
+	' Connect to the network
+	WiFiMod.Connected = WiFiMod.Connect
+
+	' Wifi connected
+	If WiFiMod.Connected Then
+		' Connect to the broker
+		MQTTMod.Initialize(MQTT_CLIENT_ID, WiFiMod.Client.Stream)
+		MQTTMod.Connect(0)
+		Delay(1000)
+
+		If MQTTMod.Connected Then
+			' Start the retained state topic timer
+			MQTTCheckEntityTimer.Enabled = True
+			Log("[AppStart] Waiting for retained config messages...",MQTTCHECKENTITYTIMER_MAX,"s.")
+
+			' Publish availability
+			MQTTMod.Publish(Array As String(MQTT_STATE_TOPIC_AVAILABILITY), Array As String("online"))
+			Delay(1000)
+
+			' Subscribe to retained config topic (temperature only)
+			MQTTMod.Subscribe(Array As String(MQTT_CONFIG_TOPIC_ROTARYLIGHT))
+			Delay(1000)
+		End If
+	End If
+End Sub
+
+#Region Retained State Check
+Private Sub MQTTCheckEntityTimer_Tick
+	If MQTTMod.Connected == False Then Return
+
+	' Increase the counter
+	CheckEntityTimerCounter = CheckEntityTimerCounter + 1
+
+	' Retained config topic has NOT been received - publish the config entities
+	If CheckEntityTimerCounter == MQTTCHECKENTITYTIMER_MAX Then
+		Log("[CheckEntityTimer_Tick] Discovery Entity not found > publishing MQTT discovery...")
+
+		MQTTMod.Remove(Array As String(MQTT_CONFIG_TOPIC_ROTARYLIGHT))
+		Delay(1000)
+		
+		MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_ROTARYLIGHT), _
+						Array As String(MQTT_CONFIG_PAYLOAD_ROTARYLIGHT))
+		Delay(1000)
+
+		' Set the flag so next if can start subscribing
+		TopicConfigReceived = True
+	End If
+
+	' Retained config topic has been received
+	If TopicConfigReceived Then
+		' Stop the timer
+		MQTTCheckEntityTimer.Enabled = False
+		Log("[CheckEntityTimer_Tick] Discovery Entity found > timer stopped")
+
+		' Subscribe to the config & command topic - see mqtt_message_arrived
+		MQTTMod.Subscribe(Array As String(MQTT_CONFIG_TOPIC_ROTARYLIGHT, _
+		                                  MQTT_STATE_TOPIC_ROTARYLIGHT_COMMAND))
+
+		' Start the rotary timer
+		RotaryTimer.Enabled = True
+
+	End If
+End Sub
+#End Region
+
+#Region EncoderTimer
+' Handle rotary encoder and push-button.
+' Changing the rotary encode will set the brightness of the LED.
+' Change step size (e.g. ±10 instead of ±5) for faster control.
+Private Sub RotaryTimer_Tick
+	Dim encodeposstep As UInt = 2
+	Dim brightnessstep As UInt = 25
+	Dim encoderdirection As Byte = 99	'0=right, 1=left
+
+	' Get the encoder pin state
+	Dim a As Byte = IIf(pinA.DigitalRead, 1, 0)
+	Dim b As Byte = IIf(pinB.DigitalRead, 1, 0)
+	Dim encoded As Byte = Bit.Or(Bit.ShiftLeft(a, 1), b)
+
+	' Check if encoder has changed
+	If encoded <> lastEncoded Then
+		Dim combined As Byte = Bit.Or(Bit.ShiftLeft(lastEncoded, 2), encoded)
+
+		Select combined
+			Case 0x01, 0x07, 0x0E, 0x08
+				encoderPos = encoderPos + 1
+			Case 0x02, 0x04, 0x0B, 0x0D
+				encoderPos = encoderPos - 1
+		End Select
+
+		lastEncoded = encoded
+
+		If encoderPos >= encodeposstep Then
+			encoderPos = 0
+			LightBrightness = Min(LightBrightness + brightnessstep, 255)
+			encoderdirection = 0
+		Else If encoderPos <= (encodeposstep * -1) Then
+			encoderPos = 0
+			LightBrightness = Max(LightBrightness - brightnessstep, 0)
+			encoderdirection = 1
+		End If
+
+		' Publish state & brightness as JSON to HA only if brightness has changed.
+		If LightBrightness <> LightBrightnessLast Then
+			Log("[RotaryTimer_Tick][Encoder] direction=",Utils.DirectionToString(encoderdirection), ",brightness=", LightBrightness, ",last=",LightBrightnessLast)
+			UpdateLightState(IIf(LightBrightness > 0, True, False), LightBrightness)
+			' At the end of RotaryTimer_Tick
+			Delay(10) ' either 5 or 10 for time to settle			
+		End If
+
+		' Allways store brightness as last brightness to keep in sync
+		'LightBrightnessLast = LightBrightness
+
+		' Leave
+		Return
+	End If
+
+	' Button press detection
+	Dim btn As Boolean = pinBtn.DigitalRead
+	' Check if changed
+	If btn <> pinBtnState Then
+		pinBtnState = btn
+		Log("[RotaryTimer_Tick] button=", IIf(btn, "RELEASED", "PRESSED"))
+
+		Select pinBtnState
+			' Button PRESSED
+			Case False
+
+				UpdateLightState(Not(LightState), LightBrightness)
+
+				' Set the LightState
+				'LightState = Not(LightState)
+				' Publish state & brightness as JSON to HA
+				'PublishStateBrightness(LightState, LightBrightness)
+				' Set the led brightness
+				'SetLEDState(LightState, LightBrightness)
+
+			Case True
+				' Button RELEASED - NOT USED as all handled using LightState
+				' Log("[ButtonStateChanged] button=released (up)")
+				' LightState = False
+		End Select
+		' Short delay to handle push-button noise
+		Delay(100)
+	End If
+End Sub
+#End Region
+
+#Region MQTT
+' Event: Handle MQTT Message arrived (called from MQTTMod)
+' Examples:
+' [MQTT_MessageArrived] topic=hawe/rotarylight/set, payload={"state":"ON","brightness":36}
+' [MQTT_MessageArrived] topic=hawe/rotarylight/set, payload={"state":"ON"}
+' The JSON payload is parsed to get the state and brightness.
+' [MQTT_MessageArrived] state=ON,brightness=3
+Public Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
+	Log("[MQTT_MessageArrived] topic=", Topic, ", payload=", Payload)
+
+	' Check retained topic exists (only once)
+	If Topic == MQTT_CONFIG_TOPIC_ROTARYLIGHT And Not(TopicConfigReceived) Then
+		TopicConfigReceived = True
+		Log("[MQTT_MessageArrived] Retained temperature state received, value=",Payload)
+		Return
+	End If
+
+	' Parse the JSON payload
+	Dim buffer() As Byte = Utils.GetTextFromKey(Payload, "state")
+	Dim state As Boolean = IIf(buffer.length > 0, Utils.OnOffToBool(bc.StringFromBytes(buffer)), LightStateLast)
+
+	Dim brightness As Double = Utils.GetNumberFromKey(Payload, "brightness")
+	' Check if payload contains brightness else set last brightness
+	If brightness == -1 Then brightness = LightBrightnessLast
+	Log("[MQTT_MessageArrived] state=", state, ",brightness=", brightness)
+
+	UpdateLightState(state, brightness)
+
+'	' Publish state & brightness as JSON to HA
+'	PublishStateBrightness(state, brightness)
+'	
+'	' Set the LED state
+'	SetLEDState(state, brightness)
+End Sub
+#End Region
+
+#Region Helper
+
+' Publish the to HA the JSON string containing the state and brightness
+Private Sub PublishStateBrightness(state As Boolean, brightness As Byte)
+	Dim json() As Byte
+	json = Utils.ReplaceString(MQTT_PAYLOAD_ROTARYLIGHT_BRIGHTNESS, "#STATE#".GetBytes, Utils.BoolToOnOff(state).GetBytes)
+	json = Utils.ReplaceString(json, "#BRIGHTNESS#".GetBytes, brightness.As(String).GetBytes)
+	MQTTMod.Publish(Array As String(MQTT_STATE_TOPIC_ROTARYLIGHT_STATE), Array As String(bc.StringFromBytes(json)))
+	Log("[PublishStateBrightness] published=", json)
+End Sub
+
+' Set the LED state using the globals LightState and LightBrightness
+Private Sub SetLEDState(state As Boolean, brightness As Byte)
+	If state Then
+		led.Write(brightness)
+	Else
+		led.Off
+	End If
+End Sub
+
+Private Sub UpdateLightState(state As Boolean, brightness As Int)
+	LightState = state
+	LightBrightness = brightness
+	SetLEDState(state, brightness)
+	PublishStateBrightness(state, brightness)
+	LightBrightnessLast = brightness
+	LightStateLast = state
+End Sub
+#End Region
