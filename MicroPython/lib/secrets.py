@@ -5,14 +5,14 @@ All constants must in UPPERCASE
 """
 
 # ---- WIFI CONFIG ----
-WIFI_SSID = 'Zuse'                  # 'YourWiFiSSID'
-WIFI_PASS = '83425399897672098612'  # 'YourWiFiPassword'
+WIFI_SSID = 'YourWiFiSSID'
+WIFI_PASS = 'YourWiFiPassword'
 
 # ---- MQTT CONFIG ----
-MQTT_BROKER = '192.168.1.124'       #
+MQTT_BROKER = 'NNN.NNN.NNN.NNN'   
 MQTT_PORT = 1883
-MQTT_USER = 'rwbl'                  #'mqtt_user'
-MQTT_PASSWORD = 'shrdlu'            #'mqtt_password'
+MQTT_USER = 'mqtt_user'
+MQTT_PASSWORD = 'mqtt_password'
 
 # Home Assistant MQTT discovery topic prefix
 DISCOVERY_PREFIX = "homeassistant"
