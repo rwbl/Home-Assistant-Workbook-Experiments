@@ -112,8 +112,6 @@ This experiment demonstrates controlling a light entity in **Home Assistant (HA)
 
 ---
 
----
-
 ## Disclaimer
 
 This project is developed for **personal, educational use only**.  
