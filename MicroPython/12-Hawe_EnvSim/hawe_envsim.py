@@ -2,7 +2,7 @@
 hawe_envsim.py
 Simulate environment data temperature, humidity & pressure.
 
-Date: 2025-06-18
+Date: 2025-06-25
 
 Author: Robert W.B. Linn
 
@@ -14,11 +14,9 @@ Script Output:
 [publish_sensor] t=24.57,h=68.58,dp=18.40
 """
 
-# SCRIPT START
 import network
 import time
 import machine
-# import ubinascii
 import ujson
 from math import log
 import random
@@ -40,47 +38,67 @@ print(f"[initialize] {DEVICE_NAME}")
 utils.onboard_led_blink(times=2)
 
 # ---- MQTT TOPICS ----
-                            #"homeassistant/sensor/hawe/envsim/availability"
 TOPIC_AVAILABILITY          = f"{secrets.DISCOVERY_PREFIX}/sensor/{secrets.BASE_TOPIC}/{DEVICE_ID}/availability"
 
-# IMPORTANT REMINDER FOR MQTT DISCOVERY
-# homeassistant/<component>/<unique_id>/config
-
-# Temperature - Entity = sensor.hawe_envsim_temperature
-                            #"homeassistant/sensor/hawe_envsim_temperature/config"
 TOPIC_CONFIG_TEMPERATURE    = f"{secrets.DISCOVERY_PREFIX}/sensor/{secrets.BASE_TOPIC}_{DEVICE_ID}_temperature/config"
-                            #"hawe/envsim/temperature/state"
 TOPIC_STATE_TEMPERATURE     = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/temperature/state"
 
-# Humidity - Entity = sensor.hawe_envsim_humidity
-                            #"homeassistant/sensor/hawe_envsim_humidity/config"
 TOPIC_CONFIG_HUMIDITY       = f"{secrets.DISCOVERY_PREFIX}/sensor/{secrets.BASE_TOPIC}_{DEVICE_ID}_humidity/config"
-                            #"hawe/envsim/humidity/state"
 TOPIC_STATE_HUMIDITY        = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/humidity/state"
 
-# Pressure - Entity = sensor.hawe_envsim_pressure
-                            #"homeassistant/sensor/hawe_envsim_pressure/config"
 TOPIC_CONFIG_PRESSURE       = f"{secrets.DISCOVERY_PREFIX}/sensor/{secrets.BASE_TOPIC}_{DEVICE_ID}_pressure/config"
-                            #"hawe/envsim/pressure/state"
 TOPIC_STATE_PRESSURE        = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/pressure/state"
 
-# --- SENSOR (envsim) ---
+# Track if state was received for each entity
+state_received = {
+    "temperature": False,
+    "humidity": False,
+    "pressure": False
+}
 
-# Simulate every 10 seconds
-SIMULATOR_INTERVAL = 10
+# MQTT Callback to detect retained messages
+def mqtt_callback(topic, msg):
+    topic_str = topic.decode()
+    if topic_str == TOPIC_CONFIG_TEMPERATURE:
+        state_received["temperature"] = True
+    elif topic_str == TOPIC_CONFIG_HUMIDITY:
+        state_received["humidity"] = True
+    elif topic_str == TOPIC_CONFIG_PRESSURE:
+        state_received["pressure"] = True
 
-# ---- MQTT ----
+# Check if all entity state topics have retained messages
+def check_entity_existence():
+    mqtt.set_callback(mqtt_callback)
+    mqtt.subscribe(TOPIC_CONFIG_TEMPERATURE)
+    mqtt.subscribe(TOPIC_CONFIG_HUMIDITY)
+    mqtt.subscribe(TOPIC_CONFIG_PRESSURE)
+
+    print("[check_entity_existence] Waiting for retained config messages...")
+
+    start = time.ticks_ms()
+    timeout = 2000  # milliseconds
+
+    while time.ticks_diff(time.ticks_ms(), start) < timeout:
+        mqtt.check_msg()
+        if all(state_received.values()):
+            break
+        time.sleep(0.1)
+
+    print(f"[check_entity_existence] Result: {state_received}")
+    return all(state_received.values())
+
+# Publish device availability
 def publish_availability():
     print(f"[publish_availability] topic={TOPIC_AVAILABILITY} payload='online'")
     mqtt.publish(TOPIC_AVAILABILITY, b"online", retain=True)
 
+# Publish MQTT discovery config topics
 def publish_discovery():
     device_info = {
         "identifiers": [DEVICE_ID],
         "name": DEVICE_NAME
     }
 
-    # MQTTAD_TOPIC_TEMPERATURE = "homeassistant/sensor/hawe_sht20_temperature/config"
     configs = [
         (TOPIC_CONFIG_TEMPERATURE, {
          "device_class": "temperature",
@@ -91,8 +109,7 @@ def publish_discovery():
          "unique_id": f"{secrets.BASE_TOPIC}_{DEVICE_ID}_temperature",
          "availability_topic": TOPIC_AVAILABILITY,
          "device": device_info
-        })
-        ,
+        }),
         (TOPIC_CONFIG_HUMIDITY, {
          "device_class": "humidity",
          "name": "Humidity",
@@ -102,8 +119,7 @@ def publish_discovery():
          "unique_id": f"{secrets.BASE_TOPIC}_{DEVICE_ID}_humidity",
          "availability_topic": TOPIC_AVAILABILITY,
          "device": device_info
-        })
-        ,
+        }),
         (TOPIC_CONFIG_PRESSURE, {
          "device_class": "pressure",
          "name": "Pressure",
@@ -117,61 +133,62 @@ def publish_discovery():
     ]
 
     for topic, cfg in configs:
-        # The empty payload to clear retained messages is usually sent as a zero-length byte string (b"") rather than an empty Unicode string ("").
-        # Some MQTT brokers (or clients) can interpret these differently, and b"" is the standard to clear a retained message.
-
-        payload = b""
-        mqtt.publish(topic, payload, retain=True)
+        # Clear retained message first
+        mqtt.publish(topic, b"", retain=True)
         print(f"[publish_discovery] removed topic={topic}")
         time.sleep(1)
 
         payload = ujson.dumps(cfg)
         mqtt.publish(topic, payload.encode('utf-8'), retain=True)
         print(f"[publish_discovery] added topic={topic}")
-        # print(f"[publish_discovery] added topic={topic},payload={payload}")
         time.sleep(1)
-        
+
+# Publish simulated sensor values
 def publish_sensor():
     temp_str = "{:.2f}".format(round(random.uniform(18.0, 25.0), 1))
     hum_str = "{:.2f}".format(random.randint(40, 70))
     press_str = "{:.2f}".format(random.randint(990, 1100))
+
     mqtt.publish(TOPIC_STATE_TEMPERATURE, temp_str, retain=True)
     mqtt.publish(TOPIC_STATE_HUMIDITY, hum_str, retain=True)
     mqtt.publish(TOPIC_STATE_PRESSURE, press_str, retain=True)
-    print(f"[publish_sensor] t={temp_str},h={hum_str},p={press_str}")
 
-# --- MAIN ---
+    print(f"[publish_sensor] t={temp_str}, h={hum_str}, p={press_str}")
+
+# Main loop
 def main_loop():
     while True:
         utils.onboard_led_on()
-
         publish_sensor()
-        
-        mqtt.check_msg()  # Keeps MQTT alive
-        
+        mqtt.check_msg()
         utils.onboard_led_off()
-
-        time.sleep(SIMULATOR_INTERVAL)
+        time.sleep(10)
 
 # ---- BOOT ----
 
-# WiFi Connect
+# Connect to WiFi
 wlan = connect.connect_wifi()
 
-# MQTT Connect
-mqtt = connect.connect_mqtt(MQTT_CLIENT_ID,
+# Connect to MQTT
+mqtt = connect.connect_mqtt(
+    MQTT_CLIENT_ID,
     None,
     last_will_topic=TOPIC_AVAILABILITY,
     last_will_message="offline"
 )
 
+# Publish availability
 publish_availability()
 
-# MQTT Publish MQTT Discovery topics
-publish_discovery()
+# Check if discovery topics already known to HA
+if not check_entity_existence():
+    print("[boot] Entities not found. Publishing discovery.")
+    publish_discovery()
+else:
+    print("[boot] Entities already exist. Skipping discovery.")
 
-# Turn the onboard led on
+# Turn on onboard LED
 utils.onboard_led_on()
 
-# Run the main loop
+# Start main loop
 main_loop()
