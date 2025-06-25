@@ -85,7 +85,7 @@ This experiment is part of the **Hawe – Home Assistant Workbook Experiments** 
 
 ---
 
-## 📋 Home Assistant Setup
+## Home Assistant Setup
 
 - **Discovery Topic Example:**
   ```
