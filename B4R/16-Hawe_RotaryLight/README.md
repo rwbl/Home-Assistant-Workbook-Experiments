@@ -1,13 +1,5 @@
 # Hawe Rotary Light Experiment (B4R)
 
-**Project:** Home Assistant Workbook Experiments (Hawe)  
-**File:** Hawe_RotaryLight.b4r  
-**Author:** Robert W.B. Linn  
-**Version:** See `VERSION` in source code (e.g., v20250625)  
-**Platform:** ESP32-Wrover Kit (ESP32 Dev Module)  
-**IDE/Tools:** B4R v4.00 (64-bit), Arduino-CLI 1.22, Java JDK 14  
-**Libraries:** rESP8266WiFi 1.60, rMQTT v1.40, rRandomAccessFile v1.91, rESP32LEDControl v1.00  
-
 ---
 
 ## Overview
