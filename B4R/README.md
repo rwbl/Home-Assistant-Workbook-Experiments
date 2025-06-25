@@ -3,6 +3,8 @@
 
 This folder contains B4R projects for the Hawe (Home Assistant Workbook Experiments) platform.
 
+> 🛠️ **This is a Work in Progress**
+
 ## Overview
 
 **B4R** is part of the B4X suite and is tailored for Arduino-compatible microcontrollers like the ESP32 or ESP8266. These experiments use B4R to implement MQTT-based smart devices and integrate with Home Assistant.
