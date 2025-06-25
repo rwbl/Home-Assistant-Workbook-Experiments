@@ -51,12 +51,11 @@ Each experiment has its own subfolder and README.md file.
 
 ---
 
-## Why Use B4R?
+## Disclaimer
 
-- Visual, modular development with event-based logic  
-- Great integration with other B4X tools (e.g., B4J for dashboards or tools)  
-- Faster execution compared to interpreted languages  
-- Excellent for resource-constrained microcontrollers  
+This project is developed for **personal, educational use only**.  
+All experiments and code are provided _as-is_ and should be used **at your own risk**.  
+Always test thoroughly and exercise caution when connecting hardware components or integrating with Home Assistant.
 
 ---
 
