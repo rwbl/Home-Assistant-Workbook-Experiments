@@ -1,7 +1,7 @@
 
-# Hawe – Home Assistant Experiments Workbook
+# Hawe – Home Assistant Workbook Experiments
 
-**Hawe** (short for **Home Assistant Experiments Workbook**) is an open, hands-on learning project designed to explore and experiment with microcontrollers and connected components — with a focus on learning **MicroPython** and integrating with **Home Assistant**.
+**Hawe** (short for **Home Assistant Workbook Experiments**) is an open, hands-on learning project designed to explore and experiment with microcontrollers and connected components — with a focus on learning **MicroPython** and integrating with **Home Assistant**.
 
 This workbook is a practical guide for makers, tinkerers, and hobbyists who want to:
 
