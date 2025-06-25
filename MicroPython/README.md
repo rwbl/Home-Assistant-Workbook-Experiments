@@ -2,6 +2,8 @@
 
 This folder contains MicroPython projects developed for the **Raspberry Pi Pico** (and similar microcontrollers) as part of the **Hawe** (Home Assistant Workbook Experiments) series.
 
+> 🛠️ **This is a Work in Progress**  
+
 ---
 
 ## Overview
