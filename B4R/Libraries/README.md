@@ -6,7 +6,6 @@ These libraries must be present in your **B4R additional libraries path** to ens
 > **Note:** B4R does not automatically download dependencies. You must manually copy required libraries to the appropriate folder, typically found at:  
 > `Documents\B4X\AdditionalLibraries\B4R\Libraries`
 
-More [info](https://www.b4x.com/b4r.html) about B4R - B4R – Easily build native Arduino & ESP8266 programs.
 ---
 
 ## Included Dependencies
@@ -30,13 +29,16 @@ More [info](https://www.b4x.com/b4r.html) about B4R - B4R – Easily build nativ
 
 ## Creating Your Own Library
 
-If you're building a custom experiment that uses a C++ library, you can wrap it using a `.h` and `.cpp` file pair and expose it through B4R using the `#If B4R` directive. See existing libraries like `rSHT20` as a reference.
+If you're building a custom experiment that uses a C++ library, you can wrap it using a `.h` and `.cpp` file pair and expose it through the B4R community.
+See existing libraries like `rSHT20` as a reference.
 
 ---
 
 ## Credits
 
 Special thanks to the **B4X community** and contributors of open-source Arduino-compatible libraries used within this project.
+
+Read more about [B4R](https://www.b4x.com/b4r.html) - Easily build native Arduino & ESP8266 programs.
 
 ---
 
