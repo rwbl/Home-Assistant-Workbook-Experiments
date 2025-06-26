@@ -13,7 +13,6 @@ These libraries must be present in your **B4R additional libraries path** to ens
 | Experiment       | Required Library |
 |------------------|------------------|
 | `hawe_sht20`     | `rSHT20`         |
-| *(add more...)*  | *(as needed)*    |
 
 ---
 
