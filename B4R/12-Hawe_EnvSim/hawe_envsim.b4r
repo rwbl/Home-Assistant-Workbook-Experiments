@@ -41,7 +41,7 @@ Version=4
 #End Region
 
 Sub Process_Globals
-	Private VERSION As String = "HaweEnv v20250625"
+	Private VERSION As String = "Hawe_EnvSim v20250625"
 
 	' Communication
 	Public SerialLine As Serial
@@ -178,8 +178,8 @@ Private Sub MQTTCheckEntityTimer_Tick
 		MQTTCheckEntityTimer.Enabled = False
 		Log("[CheckEntityTimer_Tick] Discovery Entity found > timer stopped")
 
-		' Subscribe to the state topics
-		MQTTMod.Subscribe(Array As String(MQTT_STATE_TOPIC_TEMPERATURE, MQTT_STATE_TOPIC_HUMIDITY, MQTT_STATE_TOPIC_PRESSURE))
+		' Subscribe to the state topics OPTIONAL
+		' MQTTMod.Subscribe(Array As String(MQTT_STATE_TOPIC_TEMPERATURE, MQTT_STATE_TOPIC_HUMIDITY, MQTT_STATE_TOPIC_PRESSURE))
 
 		SimulatorTimer.Enabled = True
 		Log("[AppStart] Simulator started")
