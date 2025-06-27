@@ -2,7 +2,7 @@
 hawe_pico_status.py
 Pico MQTT status responder for Home Assistant.
 
-Date: 2025-06-22
+Date: 2025-06-27
 
 Author: Robert W.B. Linn
 
@@ -33,8 +33,7 @@ Script Output:
 [mqtt_callback] toggle led...
 """
 
-# SCRIPT START
-#import network
+# ---- IMPORT ----
 import time
 import machine
 import ubinascii
@@ -48,23 +47,26 @@ import secrets
 import connect
 import utils
 
-# ---- DEVICE CONFIG ----
-DEVICE_NAME = "Hawe Pico Status"
-# Ensure the device id maches custom component hawe_picostatus_* for unique_id, entity_id
-DEVICE_ID = "picostatus"
-MQTT_CLIENT_ID = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
-# CLIENT_ID = f"client_{ubinascii.hexlify(machine.unique_id()).decode()}"
-
+# ---- GLOBALS ----
 wlan = None
 mqtt = None
 
-print(f"[initialize] {DEVICE_NAME}")
+# ---- DEVICE CONFIG ----
+# Always set a space between Hawe and the experiment/module
+DEVICE_NAME = "Hawe PicoStatus"
+# Set the experiment/module in lowercase
+DEVICE_ID = "picostatus"
+# Log device name & id
+print(f"[initialize][device] name={DEVICE_NAME}, id={DEVICE_ID}")
+
+# Start with onboard LED, blink until initialization completed.
+utils.onboard_led_blink(times=2)
 
 # Get the time_ms
 start_ms = time.ticks_ms()
 
-# Set the onboard LED, blink until initialization completed.
-utils.onboard_led_blink(times=2)
+# ---- MQTT ----
+MQTT_CLIENT_ID = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
 
 # ---- MQTT TOPICS ----
 #homeassistant/sensor/hawe/pico_status/availability
