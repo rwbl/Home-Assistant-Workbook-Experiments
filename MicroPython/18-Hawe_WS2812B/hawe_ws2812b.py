@@ -1,12 +1,12 @@
 """
 hawe_ws2812b.py
-Control a WS2812B Light from HA.
-The WS2812B  is a ...
-Communication via ....
+Control a single WS2812B Light from HA.
 
-Date: 2025-06-15
+Date: 2025-06-27
 
 Author: Robert W.B. Linn
+
+Hardware: WS2812B from ELV PAD4.
 
 Wiring
 Encoder Pin | Pico Pin  | Purpose                 |
@@ -15,36 +15,21 @@ VCC         | 3V3       | Power supply (MUST 3V3) |
 DIN         | GP15 (#20)| Data In                 |
 GND         | GND       | Ground reference        |
 
-HA YAML
-The entity created is Light component with entity id:
-light.light.hawe_ws2812b
-All ights are defined in include file hawe/mqtt/lights.yaml
-# Experiment 18-Hawe_WS2812B
-- name: "WS2812B"
-  object_id: hawe_ws2812b
-  unique_id: hawe_ws2812b
-  command_topic: hawe/ws2812b/set
-  state_topic: hawe/ws2812b/state
-  availability_topic: homeassistant/sensor/hawe_ws2812b/availability
-  payload_available: "online"
-  payload_not_available: "offline"
-  schema: json
-  brightness: true
-  supported_color_modes:
-    - rgb
-  device:
-    identifiers:
-      - hawe_ws2812b
-    name: "Hawe WS2812B"
-
-HA Light Published MQTT Payload
-which is received by subscribing to topic hawe/ws2812b/set
+HA
+HA
+- 1 entity from type Light is created.
+- The entity is created using MQTT Discovery with configuration payload: See function publish_discovery()
+- Entity ID: light.hawe_ws2812b
+- Subscribe to the light command topic: hawe/ws2812b/set
+- See mqtt_callback() how the light is set
+- Examples payload received from HA when pressing the Light component:
 [mqtt_callback] received topic=b'hawe/ws2812b/set', msg=b'{"state":"ON"}'
 [mqtt_callback] received topic=b'hawe/ws2812b/set', msg=b'{"state":"ON","color":{"r":255,"g":254,"b":250}}'
 [mqtt_callback] received topic=b'hawe/ws2812b/set', msg=b'{"state":"ON","brightness":61}'
 [mqtt_callback] received topic=b'hawe/ws2812b/set', msg=b'{"state":"OFF"}'
 """
-# SCRIPT START
+
+# ---- IMPORT ----
 import network
 import time
 import machine
@@ -56,20 +41,33 @@ import secrets
 import connect
 import utils
 
-print(f"[initialize] hawe_ws2812b")
-
-# Blink onboard LED until initialized
-utils.onboard_led_blink(times=2)
+# ---- GLOBALS ----
+wlan = None
+mqtt = None
 
 # ---- DEVICE CONFIG ----
-DEVICE_NAME     = "HaweWS2812B"
+# Always set a space between Hawe and the experiment/module
+DEVICE_NAME     = "Hawe WS2812B"
+# Set the experiment/module in lowercase
 DEVICE_ID       = "ws2812b"
-MQTT_CLIENT_ID  = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
+# Log device name & id
+print(f"[initialize][device] name={DEVICE_NAME}, id={DEVICE_ID}")
+
+# Start with onboard LED, blink until initialization completed.
+utils.onboard_led_blink(times=2)
+
+# ---- MQTT ----
+MQTT_CLIENT_ID = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
 
 # ---- MQTT TOPICS ----
+                      #"homeassistant/sensor/hawe_ws2812b/config"
 TOPIC_AVAILABILITY  = f"homeassistant/sensor/{secrets.BASE_TOPIC}_{DEVICE_ID}/availability"
-TOPIC_COMMAND_LIGHT = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/set"
-TOPIC_STATE_LIGHT   = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/state"
+                      #"homeassistant/light/hawe_ws2812b/config"
+TOPIC_CONFIG_LIGHT   = f"{secrets.DISCOVERY_PREFIX}/light/{secrets.BASE_TOPIC}_{DEVICE_ID}/config"
+                     #"hawe/ws2812b/state"
+TOPIC_STATE_LIGHT    = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/state"
+                     #"hawe/hawe_ws2812b/set"
+TOPIC_COMMAND_LIGHT  = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/set"
 
 # ---- GLOBAL STATE ----
 last_state = "OFF"
@@ -165,7 +163,7 @@ def pixel_off(index):
 # Brightness 135 = [mqtt_callback] received topic=b'hawe/ws2812b/set', msg=b'{"state":"ON","brightness":135}'
 # Color RED 100% = [mqtt_callback] received topic=b'hawe/ws2812b/set', msg=b'{"state":"ON","color":{"r":255,"g":2,"b":2}}'
 def mqtt_callback(topic, msg):
-    global last_state, last_rgb, last_brightness
+    global mqtt, last_state, last_rgb, last_brightness
     print(f"[mqtt_callback] received topic={topic}, msg={msg}")
     if topic == TOPIC_COMMAND_LIGHT.encode():
         try:
@@ -203,10 +201,42 @@ def mqtt_callback(topic, msg):
 
 # ---- MQTT PUBLISH ----
 def publish_availability():
+    global mqtt
     print(f"[publish_availability] topic={TOPIC_AVAILABILITY} payload='online'")
     mqtt.publish(TOPIC_AVAILABILITY, b"online", retain=True)
 
+# ---- MQTT DISCOVERY CONFIG ----
+def publish_discovery():
+    global mqtt
+    config = {
+        "name": "Hawe WS2812B",
+        "object_id": f"{secrets.BASE_TOPIC}_{DEVICE_ID}",
+        "unique_id": f"{secrets.BASE_TOPIC}_{DEVICE_ID}",
+        "command_topic": TOPIC_COMMAND_LIGHT,
+        "state_topic": TOPIC_STATE_LIGHT,
+        "availability_topic": TOPIC_AVAILABILITY,
+        "payload_available": "online",
+        "payload_not_available": "offline",
+        "schema": "json",
+        "brightness": True,
+        "supported_color_modes":"rgb",
+        "device": {
+                    "name": DEVICE_NAME,
+                    "identifiers": [DEVICE_ID]
+                }
+    }
+    # Clear old config first - ensure to public empty payload as byte
+    mqtt.publish(TOPIC_CONFIG_LIGHT, b"", retain=True)
+    print(f"[publish_discovery] removed topic={TOPIC_CONFIG_LIGHT}")
+    time.sleep(1)
+    
+    # Add new
+    mqtt.publish(TOPIC_CONFIG_LIGHT, ujson.dumps(config), retain=True)
+    print(f"[publish_discovery] added topic={TOPIC_CONFIG_LIGHT}")
+    time.sleep(1)
+
 def publish_state():
+    global mqtt
     payload = ujson.dumps({
         "state": last_state,
         "brightness": last_brightness,
@@ -217,44 +247,63 @@ def publish_state():
 
 # ---- MQTT SUBSCRIBE ----
 def subscribe_command():
+    global mqtt
     mqtt.subscribe(TOPIC_COMMAND_LIGHT)
     print(f"[subscribe_command] topic={TOPIC_COMMAND_LIGHT}")
 
 # ---- MAIN LOOP ----
 def main_loop():
+    global mqtt
     while True:
         mqtt.check_msg()
         time.sleep(0.2)  # wait 0.2 seconds (200 ms) instead of 100 ms
                          # reduces CPU load and makes your device a bit more relaxed.
 
 # ---- BOOT ----
-try:
-    wlan = connect.connect_wifi()
+def main():
+    global wlan,mqtt
+    try:
+        print(f"Connecting WiFi...")
+        wlan = connect.connect_wifi()
 
-    mqtt = connect.connect_mqtt(
-        MQTT_CLIENT_ID,
-        mqtt_callback,
-        last_will_topic=TOPIC_AVAILABILITY,
-        last_will_message="offline"
-    )
+        print(f"Connecting MQTT...")
+        mqtt = connect.connect_mqtt(
+            MQTT_CLIENT_ID,
+            mqtt_callback,
+            last_will_topic=TOPIC_AVAILABILITY,
+            last_will_message="offline"
+        )
 
-    publish_availability()
+        # Ensure to publish the availability
+        publish_availability()
+        time.sleep(1)
+        
+        # Publish discovery
+        publish_discovery()
+        time.sleep(1)
 
-    print(f"[BOOT] last_state={last_state}, last_rgb={last_rgb}, last_brightness={last_brightness}")
-    publish_state()
-    if last_state == "OFF":
-        pixels_off()
-    else:
-        pixels_state(last_rgb, last_brightness)
+        print(f"[BOOT] last_state={last_state}, last_rgb={last_rgb}, last_brightness={last_brightness}")
+        publish_state()
+        time.sleep(1)
+        
+        if last_state == "OFF":
+            pixels_off()
+        else:
+            pixels_state(last_rgb, last_brightness)
 
-    subscribe_command()
-    utils.onboard_led_on()
+        subscribe_command()
+        time.sleep(1)
 
-    # Set pixel 1 to green to show ready to go
-    pixel_state(1, COLOR_GREEN, 50)
-    
-    main_loop()
+        utils.onboard_led_on()
 
-except Exception as e:
-    print(f"[ERROR] Initialization failed: {e}")
-    utils.onboard_led_blink(times=10)
+        # Set pixel 1 to green to show ready to go
+        pixel_state(1, COLOR_GREEN, 50)
+        
+        main_loop()
+
+    except Exception as e:
+        print(f"[ERROR] Initialization failed: {e}")
+        utils.onboard_led_blink(times=10)
+
+# Start main
+main()
