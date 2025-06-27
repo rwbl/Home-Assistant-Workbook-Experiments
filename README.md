@@ -63,19 +63,23 @@ Explore the subfolders for platform-specific instructions, examples, and librari
 ## Available Experiments
 *Example MicroPython*
 
-| Experiment                     | Description                               | Entity Type | Code Folder                      |
-|--------------------------------|-------------------------------------------|-------------|----------------------------------|
-| **HaWe_EnvSim**                | Simulates temperature, humidity, pressure | MQTTAD      | `./12-Hawe_EnvSim`               |
-| **HaWe_SHT20**                 | Read SHT20 temperature, humidity, dewpoint| MQTTAD      | `./14-Hawe_SHT20`                |
-| **HaWe_Rotary**                | Rotary Encoder with Push-Button           | MQTTAD      | `./16-HaWe_Rotary`               |
-| **HaWe_WS2812B**               | Control a single LED                      | MQTTAD      | `./18-HaWe_WS2812B`              |
-| **HaWe_WS2812B_TrafficLight**  | Control 3 LEDs red, yellow, green         | MQTTAD      | `./20-HaWe_WS2812B_TrafficLight` |
-| **HaWe_SolarInfo_OLED**        | Display Solar info on 0.96" OLED display  | MQTTAD      | `./22-HaWe_SolarInfo_OLED`       |
-| **HaWe_SolarInfo_ePaper**      | Display Solar info on 2.66" ePaper display| MQTTAD      | `./24-HaWe_SolarInfo_ePaper`     |
-| **HaWe_Pico_Status**           | Monitor your Raspberry Pi Pico W status   | MQTTAD      | `./26-HaWe_Pico_Status`          |
-| **HaWe_SolarInfo_LCD1602**     | Display Solar info on LCD1602 display     | MQTTAD      | `./28-HaWe_SolarInfo_LCD1602`    |
+| Experiment                     | Description                                | MicroPython | B4R |
+|-------------------------------|--------------------------------------------|-------------|-----|
+| **HaWe_EnvSim**               | Simulates temperature, humidity, pressure  | ✅           | ✅   |
+| **HaWe_SHT20**                | Read SHT20 temperature, humidity, dewpoint | ✅           | ✅   |
+| **HaWe_RotaryLight**          | Rotary Encoder with Push-Button            | ✅           | ✅   |
+| **HaWe_WS2812B**              | Control a single LED                       | ✅           | ❌   |
+| **HaWe_WS2812B_TrafficLight** | Control 3 LEDs red, yellow, green          | ✅           | ❌   |
+| **HaWe_SolarInfo_OLED**       | Display Solar info on 0.96" OLED display   | ✅           | ❌   |
+| **HaWe_SolarInfo_ePaper**     | Display Solar info on 2.66" ePaper display | ✅           | ❌   |
+| **HaWe_Pico_Status**          | Monitor your Raspberry Pi Pico W status    | ✅           | ❌   |
+| **HaWe_SolarInfo_LCD1602**    | Display Solar info on LCD1602 display      | ✅           | ❌   |
+| **HaWe_TM1637**               | 7-Segment Display                           | ❌           | 🕓   |
+| **HaWe_LCD2004**              | LCD 2004 Display                            | ❌           | 🕓   |
+| **HaWe_SR04**                 | Distance Sensor                             | ❌           | 🕓   |
+*(More experiments planned)*
 
-*(More experiments planned, including BMP280, 7-segment LED displays, and distance sensors.)*
+✅ = Completed, ❌ = Not planned, 🕓 = Planned
 
 ---
 
