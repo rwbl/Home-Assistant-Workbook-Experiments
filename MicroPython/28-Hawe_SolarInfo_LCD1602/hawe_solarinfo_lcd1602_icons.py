@@ -1,10 +1,8 @@
 """
-hawe_solarinfo_lcd1602_cc.py
+hawe_solarinfo_lcd1602_icons.py
 MicroPython script to read MQTT solar data and show on LCD1602 via I2C.
-The solar info prefix used are icons:
 
-
-Date: 2025-06-23
+Date: 2025-06-27
 
 Author: Robert W.B. Linn
 
@@ -51,6 +49,7 @@ Log Example
 [show_solar_lcd] updated 1001
 """
 
+# ---- IMPORT ----
 import time
 import ujson
 import machine
@@ -65,19 +64,53 @@ import utils
 from lcd_api import LcdApi
 from i2c_lcd import I2cLcd
 
+# ---- GLOBALS ----
+wlan = None
+mqtt = None
+
+# ---- DEVICE CONFIG ----
+# Always set a space between Hawe and the experiment/module
+DEVICE_NAME     = "Hawe Solar Info LCD"
+# Set the experiment/module in lowercase
+DEVICE_ID       = "solarinfo"
+# Log device name & id
+print(f"[initialize][device] name={DEVICE_NAME}, id={DEVICE_ID}")
+
+# Start with onboard LED, blink until initialization completed.
+utils.onboard_led_blink(times=2)
+
+# ---- LCD  ----
+
+# I2C channel and scl,sda pins
 I2C_CH  = 1
 SCL_PIN = 27
 SDA_PIN = 26
 
 lcd = None
+lcd_ok = False
 I2C_ADDR = None
 
-# ---- DEVICE CONFIG ----
-DEVICE_NAME     = "Hawe Solar Info LCD"
-DEVICE_ID       = "solarinfo"
-MQTT_CLIENT_ID  = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
+# ---- LCD INIT ----
+def init_lcd(scl_pin, sda_pin):
+    global lcd, I2C_ADDR
+    try:
+        i2c = machine.I2C(I2C_CH, scl=machine.Pin(scl_pin), sda=machine.Pin(sda_pin))
+        devices = i2c.scan()
+        if not devices:
+            raise RuntimeError("No I2C devices found")
+        I2C_ADDR = devices[0]  # use first device
+        lcd = I2cLcd(i2c, I2C_ADDR, 2, 16)
+        lcd.backlight_on()
+        lcd.clear()
+        lcd.putstr("Hawe SolarInfo")
+        print(f"[init_lcd] found LCD at 0x{I2C_ADDR:02X}")
+        return True
+    except Exception as e:
+        print("[init_lcd] failed:", e)
+        lcd = None
+        return False
 
-# ---- Data Dict ----
+# ---- Solar Data Dict ----
 solar_data = {
     "power_from_solar": None,
     "power_from_grid": None,
@@ -90,63 +123,48 @@ solar_data = {
     "power_time_stamp": None
 }
 
+# ---- MQTT ----
+MQTT_CLIENT_ID = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
+
 # ---- MQTT TOPICS ----
 TOPIC_AVAILABILITY = f"homeassistant/sensor/{secrets.BASE_TOPIC}_{DEVICE_ID}/availability"
 TOPIC_SOLAR_INFO   = "hawe/solar_info/helper"
 
-# ---- LCD ----
-LCD_ROWS = 2
-LCD_COLS = 16
-
-last_lcd_update = 0
-last_line1 = ""
-last_line2 = ""
-
-# ---- LCD INIT ----
-def init_lcd(scl_pin, sda_pin):
-    global lcd, I2C_ADDR
-    try:
-        i2c = machine.I2C(I2C_CH, scl=machine.Pin(scl_pin), sda=machine.Pin(sda_pin))
-        devices = i2c.scan()
-        if not devices:
-            raise RuntimeError("No I2C devices found")
-        I2C_ADDR = devices[0]
-        lcd = I2cLcd(i2c, I2C_ADDR, LCD_ROWS, LCD_COLS)
-        lcd.load_custom_icons()
-        lcd.backlight_on()
-        lcd.clear()
-        lcd.putstr("Hawe SolarInfo")
-        print(f"[init_lcd] found LCD at 0x{I2C_ADDR:02X}")
-        return True
-    except Exception as e:
-        print("[init_lcd] failed:", e)
-        lcd = None
-        return False
-
 # ---- MQTT CALLBACK ----
 def mqtt_callback(topic, msg):
+    global mqtt
     topic = topic.decode()
     if topic == TOPIC_SOLAR_INFO:
         try:
             data = ujson.loads(msg)
-            # print(f"[mqtt_callback] {data}")
+            print(f"[mqtt_callback] solar data received={data}")
             for key in solar_data:
                 if key in data:
-                    solar_data[key] = str(data[key])            
-            gc.collect()            
-            show_solar_lcd_icons()
+                    solar_data[key] = str(data[key])
+            gc.collect()
+            show_solar_lcd()
         except Exception as e:
             print("[mqtt_callback] JSON error:", e)
 
 # ---- MQTT PUB & SUB ----
 def publish_availability():
+    global mqtt
     mqtt.publish(TOPIC_AVAILABILITY, b"online", retain=True)
 
 def subscribe_command():
+    global mqtt
     mqtt.subscribe(TOPIC_SOLAR_INFO)
 
 # ---- LCD DISPLAY ----
-def show_solar_lcd_icons():
+def fit(text, width):
+    text = str(text)
+    if len(text) > width:
+        return text[:width]
+    else:
+        return text + (" " * (width - len(text)))
+
+# ---- LCD DISPLAY ----
+def show_solar_lcd():
     global lcd, last_lcd_update, last_line1, last_line2
 
     if not lcd:
@@ -202,39 +220,43 @@ def show_solar_lcd_icons():
 
 # ---- MAIN LOOP ----
 def main_loop():
-    
+    global mqtt
     last_gc = time.ticks_ms()
-    
     while True:
         mqtt.check_msg()
         if time.ticks_diff(time.ticks_ms(), last_gc) > 10000:
             gc.collect()
             last_gc = time.ticks_ms()
             print("[main_loop] running")
-            # show_solar_lcd_icons()
+            show_solar_lcd()
 
 # ---- BOOT ----
-try:
-    print("[boot] initializing...")
-    utils.onboard_led_blink(times=2)
+def main():
+    global wlan,mqtt,lcd_ok
 
-    wlan = connect.connect_wifi()
-    ok = init_lcd(SCL_PIN, SDA_PIN)
-    if not ok:
-        print("[boot] LCD not initialized")
+    try:
+        # Init LCD display first
+        lcd_ok = init_lcd(SCL_PIN, SDA_PIN)
+        if not lcd_ok:
+            print("[main] LCD not available — continuing without display.")
 
-    mqtt = connect.connect_mqtt(
-        MQTT_CLIENT_ID,
-        mqtt_callback,
-        last_will_topic=TOPIC_AVAILABILITY,
-        last_will_message="offline"
-    )
+        wlan = connect.connect_wifi()
 
-    publish_availability()
-    subscribe_command()
-    utils.onboard_led_on()
-    main_loop()
+        mqtt = connect.connect_mqtt(
+            MQTT_CLIENT_ID,
+            mqtt_callback,
+            last_will_topic=TOPIC_AVAILABILITY,
+            last_will_message="offline"
+        )
 
-except Exception as e:
-    print(f"[ERROR] Initialization failed: {e}")
-    utils.onboard_led_blink(times=10)
+        publish_availability()
+        subscribe_command()
+        utils.onboard_led_on()
+        main_loop()
+
+    except Exception as e:
+        print(f"[ERROR] Initialization failed: {e}")
+        utils.onboard_led_blink(times=10)
+
+# Start main
+main()
