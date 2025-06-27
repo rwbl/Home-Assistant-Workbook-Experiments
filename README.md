@@ -61,7 +61,6 @@ Explore the subfolders for platform-specific instructions, examples, and librari
 ---
 
 ## Available Experiments
-*Example MicroPython*
 
 | Experiment                     | Description                                | MicroPython | B4R |
 |-------------------------------|--------------------------------------------|-------------|-----|
