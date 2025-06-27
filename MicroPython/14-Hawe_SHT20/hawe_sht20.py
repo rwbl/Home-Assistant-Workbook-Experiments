@@ -8,7 +8,7 @@ SHT20 I2C Command Set (important codes)
 0xF5 → Trigger humidity measurement (no hold)
 Read back 3 bytes: [MSB][LSB][CRC]
 
-Date: 2025-06-15
+Date: 2025-06-27
 
 Author: Robert W.B. Linn
 
@@ -26,7 +26,7 @@ Script Output:
 [publish_sensor] t=24.57,h=68.58,dp=18.40
 """
 
-# SCRIPT START
+# ---- IMPORT ----
 import network
 import time
 import machine
@@ -40,14 +40,22 @@ import secrets
 import connect
 import utils
 
-print(f"[initialize] hawe_sht20")
+# ---- GLOBALS ----
+wlan = None
+mqtt = None
 
 # Start with onboard LED, blink until initialization completed.
 utils.onboard_led_blink(times=2)
 
 # ---- DEVICE CONFIG ----
+# Always set a space between Hawe and the experiment/module
 DEVICE_NAME = "Hawe SHT20"
+# Set the experiment/module in lowercase
 DEVICE_ID = "sht20"
+# Log device name & id
+print(f"[initialize][device] name={DEVICE_NAME}, id={DEVICE_ID}")
+
+# ---- MQTT ----
 MQTT_CLIENT_ID = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
 
 # ---- MQTT TOPICS ----
@@ -75,8 +83,14 @@ TOPIC_CONFIG_DEWPOINT       = f"{secrets.DISCOVERY_PREFIX}/sensor/{secrets.BASE_
                             #"hawe/sht20/dewpoint/state"
 TOPIC_STATE_DEWPOINT        = f"{secrets.BASE_TOPIC}/{DEVICE_ID}/dewpoint/state"
 
-# --- SENSOR (SHT20) ---
+# Track if state was received for each entity
+state_received = {
+    "temperature": False,
+    "humidity": False,
+    "dewpoint": False
+}
 
+# --- SENSOR (SHT20) ---
 # Read every 10 seconds
 SHT20_READ_INTERVAL = 10
 
@@ -110,10 +124,45 @@ def dewpoint(t, rh):
 
 # ---- MQTT ----
 def publish_availability():
+    global mqtt
     print(f"[publish_availability] topic={TOPIC_AVAILABILITY} payload='online'")
     mqtt.publish(TOPIC_AVAILABILITY, b"online", retain=True)
 
+# MQTT Callback to detect retained messages
+def mqtt_callback_retained(topic, msg):
+    topic_str = topic.decode()
+    if topic_str == TOPIC_CONFIG_TEMPERATURE:
+        state_received["temperature"] = True
+    elif topic_str == TOPIC_CONFIG_HUMIDITY:
+        state_received["humidity"] = True
+    elif topic_str == TOPIC_CONFIG_DEWPOINT:
+        state_received["dewpoint"] = True
+
+# Check if all entity state topics have retained messages
+def check_entity_existence():
+    global mqtt
+    
+    mqtt.set_callback(mqtt_callback_retained)
+    mqtt.subscribe(TOPIC_CONFIG_TEMPERATURE)
+    mqtt.subscribe(TOPIC_CONFIG_HUMIDITY)
+    mqtt.subscribe(TOPIC_CONFIG_DEWPOINT)
+
+    print("[check_entity_existence] Waiting for retained config messages...")
+
+    start = time.ticks_ms()
+    timeout = 2000  # milliseconds
+
+    while time.ticks_diff(time.ticks_ms(), start) < timeout:
+        mqtt.check_msg()
+        if all(state_received.values()):
+            break
+        time.sleep(0.1)
+
+    print(f"[check_entity_existence] Result: {state_received}")
+    return all(state_received.values())
+
 def publish_discovery():
+    global mqtt
     device_info = {
         "identifiers": [DEVICE_ID],
         "name": DEVICE_NAME
@@ -172,6 +221,7 @@ def publish_discovery():
         time.sleep(1)
 
 def publish_sensor(temp, hum, dew):
+    global mqtt
     temp_str = "{:.2f}".format(temp)
     hum_str = "{:.2f}".format(hum)
     dew_str = "{:.2f}".format(dew)
@@ -195,6 +245,7 @@ except Exception as e:
 
 # --- MAIN ---
 def main_loop():
+    global mqtt
     while True:
         utils.onboard_led_on()
 
@@ -208,25 +259,37 @@ def main_loop():
         time.sleep(SHT20_READ_INTERVAL)
 
 # ---- BOOT ----
-# Only start if the sensor is properly initialized
-if sensor_initialized:
-    # WiFi Connect
-    wlan = connect.connect_wifi()
-
-    # MQTT Connect
-    mqtt = connect.connect_mqtt(MQTT_CLIENT_ID,
-        None,
-        last_will_topic=TOPIC_AVAILABILITY,
-        last_will_message="offline"
-    )
+def main():
+    global wlan,mqtt
     
-    publish_availability()
+    # Only start if the sensor is properly initialized
+    if sensor_initialized:
+        # WiFi Connect
+        wlan = connect.connect_wifi()
 
-    # MQTT Publish MQTT Discovery topics
-    publish_discovery()
+        # MQTT Connect
+        mqtt = connect.connect_mqtt(MQTT_CLIENT_ID,
+            None,
+            last_will_topic=TOPIC_AVAILABILITY,
+            last_will_message="offline"
+        )
+        
+        # Ensure to publish the availability
+        publish_availability()
 
-    # Turn the onboard led on
-    utils.onboard_led_on()
+        # Check if discovery topics already known to HA
+        if not check_entity_existence():
+            print("[boot] Entities not found. Publishing discovery.")
+            publish_discovery()
+            time.sleep(1)
+        else:
+            print("[boot] Entities already exist. Skipping discovery.")
 
-    # Run the main loop
-    main_loop()
+        # Turn the onboard led on
+        utils.onboard_led_on()
+
+        # Run the main loop
+        main_loop()
+
+# Start main
+main()
