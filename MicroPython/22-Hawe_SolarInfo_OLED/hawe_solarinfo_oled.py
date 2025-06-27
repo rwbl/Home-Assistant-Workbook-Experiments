@@ -2,7 +2,7 @@
 hawe_solarinfo_oled.py
 Read from Home Assistant, using MQTT, solar info data and display on an 0.96" 4pin white OLED.
 
-Date: 2025-06-20
+Date: 2025-06-27
 
 Author: Robert W.B. Linn
 
@@ -45,7 +45,7 @@ MQTT Callback
 [mqtt_callback] done=753
 """
 
-# SCRIPT START
+# ---- IMPORT ----
 import network
 import time
 import machine
@@ -60,11 +60,20 @@ import utils
 # SSD1306
 from machine import Pin, I2C
 from ssd1306 import SSD1306_I2C
-# import framebuf
 
-print(f"[initialize] hawe_solarinfo_oled")
+# ---- GLOBALS ----
+wlan = None
+mqtt = None
 
-# Blink onboard LED until initialized
+# ---- DEVICE CONFIG ----
+# Always set a space between Hawe and the experiment/module
+DEVICE_NAME     = "Hawe Solar Info"
+# Set the experiment/module in lowercase
+DEVICE_ID       = "solarinfo"
+# Log device name & id
+print(f"[initialize][device] name={DEVICE_NAME}, id={DEVICE_ID}")
+
+# Start with onboard LED, blink until initialization completed.
 utils.onboard_led_blink(times=2)
 
 # ---- OLED ----
@@ -72,7 +81,8 @@ I2C_CH  = 1
 SCL_PIN = 27
 SDA_PIN = 26
 
-oled = None  # declared outside
+# declared outside
+oled = None
 
 def init_oled(scl_pin, sda_pin):
     global oled
@@ -95,11 +105,6 @@ def init_oled(scl_pin, sda_pin):
         oled = None
         return False
 
-# ---- DEVICE CONFIG ----
-DEVICE_NAME     = "Hawe Solar Info"
-DEVICE_ID       = "solarinfo"
-MQTT_CLIENT_ID  = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
-
 # ---- Data Dict ----
 solar_data = {
     "power_from_solar": None,
@@ -112,6 +117,9 @@ solar_data = {
     "power_date_stamp": None,
     "power_time_stamp": None
 }
+
+# ---- MQTT ----
+MQTT_CLIENT_ID  = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
 
 # ---- MQTT TOPICS ----
 # Topic availability not required, but recommended if:
@@ -148,6 +156,7 @@ def mqtt_callback(topic, msg):
 
 # ---- MQTT PUBLISH ----
 def publish_availability():
+    global mqtt
     print(f"[publish_availability] topic={TOPIC_AVAILABILITY} payload='online'")
     mqtt.publish(TOPIC_AVAILABILITY, b"online", retain=True)
 
@@ -157,6 +166,7 @@ def publish_state():
 # ---- MQTT SUBSCRIBE ----
 # Subscribe to all solar info topics
 def subscribe_command():
+    global mqtt
     topics = [
         TOPIC_SOLAR_INFO
     ]
@@ -167,6 +177,8 @@ def subscribe_command():
     print(f"[subscribe_command] done")
 
 def show_solar_summary():
+    global oled
+    
     if not oled:
         return  # skip rendering
 
@@ -209,6 +221,8 @@ def show_solar_summary():
     
 # ---- MAIN LOOP ----
 def main_loop():
+    global mqtt
+
     last_gc = time.ticks_ms()
 
     while True:
@@ -220,29 +234,37 @@ def main_loop():
             print(f"[main_loop] alive @ {last_gc}")
 
 # ---- BOOT ----
-try:
-    wlan = connect.connect_wifi()
-
-    # Init OLED first
-    oled_ok = init_oled(SCL_PIN, SDA_PIN)
-    if not oled_ok:
-        print("[boot] OLED not available — continuing without display.")
-
-    mqtt = connect.connect_mqtt(
-        MQTT_CLIENT_ID,
-        mqtt_callback,
-        last_will_topic=TOPIC_AVAILABILITY,
-        last_will_message="offline",
-    )
-
-    publish_availability()
-
-    subscribe_command()
-
-    utils.onboard_led_on()
+def main():
+    global wlan,mqtt
     
-    main_loop()
+    try:
+        wlan = connect.connect_wifi()
 
-except Exception as e:
-    print(f"[ERROR] Initialization failed: {e}")
-    utils.onboard_led_blink(times=10)
+        # Init OLED first
+        oled_ok = init_oled(SCL_PIN, SDA_PIN)
+        if not oled_ok:
+            print("[boot] OLED not available — continuing without display.")
+
+        mqtt = connect.connect_mqtt(
+            MQTT_CLIENT_ID,
+            mqtt_callback,
+            last_will_topic=TOPIC_AVAILABILITY,
+            last_will_message="offline",
+        )
+
+        # Ensure to publish the availability
+        publish_availability()
+
+        subscribe_command()
+
+        utils.onboard_led_on()
+        
+        main_loop()
+
+    except Exception as e:
+        print(f"[ERROR] Initialization failed: {e}")
+        utils.onboard_led_blink(times=10)
+
+# Start main
+main()
+
