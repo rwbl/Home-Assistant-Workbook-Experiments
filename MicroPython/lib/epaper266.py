@@ -1,5 +1,5 @@
 # *****************************************************************************
-# * | File        :	  Pico_ePaper-2.66.py
+# * | File        :   Pico_ePaper-2.66.py
 # * | Author      :   Waveshare team
 # * | Function    :   Electronic paper driver
 # * | Info        :
@@ -25,7 +25,13 @@
 # LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-#
+# *****************************************************************************
+
+# *****************************************************************************
+# MODIFICATIONS by rwbl
+# ReadBusy: timeout in case not connected.
+# *****************************************************************************
+
 
 from machine import Pin, SPI
 import framebuf
@@ -109,8 +115,24 @@ class EPD_2in66:
         self.cs_pin(0)
         self.spi.write(bytearray(buf))
         self.cs_pin(1)
-        
+
     def ReadBusy(self):
+        # print('[epaper266][ReadBusy] start')
+        utime.sleep_ms(100)
+        
+        timeout_ms = 5000  # 5 seconds timeout
+        start = utime.ticks_ms()
+
+        while self.busy_pin.value() == 1:
+            if utime.ticks_diff(utime.ticks_ms(), start) > timeout_ms:
+                # print('[epaper266][ReadBusy][ERROR] timeout waiting for BUSY pin')
+                raise RuntimeError("Timeout waiting for ePaper BUSY pin to go low")
+            utime.sleep_ms(100)
+
+        # print('[epaper266][ReadBusy] release')
+        utime.sleep_ms(100)
+
+    def ReadBusy_Org(self):
         print('e-Paper busy')
         utime.sleep_ms(100)   
         while(self.busy_pin.value() == 1):      # 0: idle, 1: busy

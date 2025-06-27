@@ -73,8 +73,15 @@ class SolarDisplay:
         """
         Initialize the ePaper display.
         """
-        self.epd = EPD_2in66()
-        self.epd.init(0)  # Initialize the display in default mode
+        try:
+            self.epd = EPD_2in66()
+            self.epd.init(0)  # Initialize the display
+            self.available = True
+            print("[SolarDisplay][init] display initialized")
+        except Exception as e:
+            print(f"[SolarDisplay][init][ERROR] failed: {e}")
+            self.epd = None
+            self.available = False
 
     def draw_bold_centered_text(self, buf, text, box_x, box_w, y, color=0x00):
         """
