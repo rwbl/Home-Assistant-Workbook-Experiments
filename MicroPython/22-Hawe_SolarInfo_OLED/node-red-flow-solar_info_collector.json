@@ -78,7 +78,7 @@
         "type": "function",
         "z": "931769d8c178cb26",
         "name": "Build JSON",
-        "func": "// Map keys from HA sensor entity names to your desired keys\nconst keyMap = {\n    \"sensor.power_from_solar\": \"power_from_solar\",\n    \"sensor.power_from_grid\": \"power_from_grid\",\n    \"sensor.power_to_grid\": \"power_to_grid\",\n    \"sensor.power_to_house\": \"power_to_house\",\n    \"sensor.power_to_battery\": \"power_to_battery\",\n    \"sensor.power_from_battery\": \"power_from_battery\",\n    \"sensor.power_battery_charge\": \"power_battery_charge\",\n    \"sensor.power_date_stamp\": \"power_date_stamp\",\n    \"sensor.power_time_stamp\": \"power_time_stamp\"\n};\n\nlet input = msg.payload;\nlet result = {};\n\nfor (let key in input) {\n    let mappedKey = keyMap[key] || key;\n    let value = input[key];\n\n    // Convert to number when possible\n    let numeric = Number(value);\n    result[mappedKey] = isNaN(numeric) ? value : numeric;\n}\n\nmsg.topic = \"hawe/solar_info/helper\";\nmsg.payload = JSON.stringify(result);\n\nnode.warn(msg.payload);\n\nreturn msg;\n",
+        "func": "// Map keys from HA sensor entity names to your desired keys\nconst keyMap = {\n    \"sensor.hawe_solarinfo_power_from_solar\": \"power_from_solar\",\n    \"sensor.hawe_solarinfo_power_from_grid\": \"power_from_grid\",\n    \"sensor.hawe_solarinfo_power_to_grid\": \"power_to_grid\",\n    \"sensor.hawe_solarinfo_power_to_house\": \"power_to_house\",\n    \"sensor.hawe_solarinfo_power_to_battery\": \"power_to_battery\",\n    \"sensor.hawe_solarinfo_power_from_battery\": \"power_from_battery\",\n    \"sensor.hawe_solarinfo_power_battery_charge\": \"power_battery_charge\",\n    \"sensor.hawe_solarinfo_power_date_stamp\": \"power_date_stamp\",\n    \"sensor.hawe_solarinfo_power_time_stamp\": \"power_time_stamp\"\n};\n\nlet input = msg.payload;\nlet result = {};\n\nfor (let key in input) {\n    let mappedKey = keyMap[key] || key;\n    let value = input[key];\n\n    // Convert to number when possible\n    let numeric = Number(value);\n    result[mappedKey] = isNaN(numeric) ? value : numeric;\n}\n\nmsg.topic = \"hawe/solar_info/helper\";\nmsg.payload = JSON.stringify(result);\n\nnode.warn(msg.payload);\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -122,7 +122,7 @@
         "halt_if": "",
         "halt_if_type": "str",
         "halt_if_compare": "is",
-        "entity_id": "sensor.power_time_stamp",
+        "entity_id": "sensor.hawe_solarinfo_power_time_stamp",
         "state_type": "str",
         "blockInputOverrides": false,
         "outputProperties": [
@@ -147,7 +147,7 @@
         "override_payload": "msg",
         "entity_location": "data",
         "override_data": "msg",
-        "x": 420,
+        "x": 470,
         "y": 560,
         "wires": [
             [
@@ -166,7 +166,7 @@
         "halt_if": "",
         "halt_if_type": "str",
         "halt_if_compare": "is",
-        "entity_id": "sensor.power_date_stamp",
+        "entity_id": "sensor.hawe_solarinfo_power_date_stamp",
         "state_type": "str",
         "blockInputOverrides": false,
         "outputProperties": [
@@ -191,7 +191,7 @@
         "override_payload": "msg",
         "entity_location": "data",
         "override_data": "msg",
-        "x": 420,
+        "x": 470,
         "y": 500,
         "wires": [
             [
@@ -210,7 +210,7 @@
         "halt_if": "",
         "halt_if_type": "str",
         "halt_if_compare": "is",
-        "entity_id": "sensor.power_battery_charge",
+        "entity_id": "sensor.hawe_solarinfo_power_battery_charge",
         "state_type": "str",
         "blockInputOverrides": false,
         "outputProperties": [
@@ -235,7 +235,7 @@
         "override_payload": "msg",
         "entity_location": "data",
         "override_data": "msg",
-        "x": 430,
+        "x": 480,
         "y": 440,
         "wires": [
             [
@@ -254,7 +254,7 @@
         "halt_if": "",
         "halt_if_type": "str",
         "halt_if_compare": "is",
-        "entity_id": "sensor.power_from_battery",
+        "entity_id": "sensor.hawe_solarinfo_power_from_battery",
         "state_type": "str",
         "blockInputOverrides": false,
         "outputProperties": [
@@ -279,7 +279,7 @@
         "override_payload": "msg",
         "entity_location": "data",
         "override_data": "msg",
-        "x": 420,
+        "x": 470,
         "y": 380,
         "wires": [
             [
@@ -298,7 +298,7 @@
         "halt_if": "",
         "halt_if_type": "str",
         "halt_if_compare": "is",
-        "entity_id": "sensor.power_to_battery",
+        "entity_id": "sensor.hawe_solarinfo_power_to_battery",
         "state_type": "str",
         "blockInputOverrides": false,
         "outputProperties": [
@@ -323,7 +323,7 @@
         "override_payload": "msg",
         "entity_location": "data",
         "override_data": "msg",
-        "x": 410,
+        "x": 470,
         "y": 320,
         "wires": [
             [
@@ -342,7 +342,7 @@
         "halt_if": "",
         "halt_if_type": "str",
         "halt_if_compare": "is",
-        "entity_id": "sensor.power_to_house",
+        "entity_id": "sensor.hawe_solarinfo_power_to_house",
         "state_type": "str",
         "blockInputOverrides": false,
         "outputProperties": [
@@ -367,7 +367,7 @@
         "override_payload": "msg",
         "entity_location": "data",
         "override_data": "msg",
-        "x": 410,
+        "x": 460,
         "y": 260,
         "wires": [
             [
@@ -386,7 +386,7 @@
         "halt_if": "",
         "halt_if_type": "str",
         "halt_if_compare": "is",
-        "entity_id": "sensor.power_to_grid",
+        "entity_id": "sensor.hawe_solarinfo_power_to_grid",
         "state_type": "str",
         "blockInputOverrides": false,
         "outputProperties": [
@@ -411,7 +411,7 @@
         "override_payload": "msg",
         "entity_location": "data",
         "override_data": "msg",
-        "x": 400,
+        "x": 460,
         "y": 200,
         "wires": [
             [
@@ -430,7 +430,7 @@
         "halt_if": "",
         "halt_if_type": "str",
         "halt_if_compare": "is",
-        "entity_id": "sensor.power_from_grid",
+        "entity_id": "sensor.hawe_solarinfo_power_from_grid",
         "state_type": "str",
         "blockInputOverrides": false,
         "outputProperties": [
@@ -455,7 +455,7 @@
         "override_payload": "msg",
         "entity_location": "data",
         "override_data": "msg",
-        "x": 410,
+        "x": 460,
         "y": 140,
         "wires": [
             [
@@ -474,7 +474,7 @@
         "halt_if": "",
         "halt_if_type": "str",
         "halt_if_compare": "is",
-        "entity_id": "sensor.power_from_solar",
+        "entity_id": "sensor.hawe_solarinfo_power_from_solar",
         "state_type": "str",
         "blockInputOverrides": false,
         "outputProperties": [
@@ -499,7 +499,7 @@
         "override_payload": "msg",
         "entity_location": "data",
         "override_data": "msg",
-        "x": 420,
+        "x": 470,
         "y": 80,
         "wires": [
             [
