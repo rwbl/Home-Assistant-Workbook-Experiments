@@ -2,7 +2,7 @@
 hawe_solarinfo_lcd1602.py
 MicroPython script to read MQTT solar data and show on LCD1602 via I2C.
 
-Date: 2025-06-23
+Date: 2025-06-27
 
 Author: Robert W.B. Linn
 
@@ -48,6 +48,7 @@ Log Example
 [show_solar_lcd] updated 1001
 """
 
+# ---- IMPORT ----
 import time
 import ujson
 import machine
@@ -62,34 +63,31 @@ import utils
 from lcd_api import LcdApi
 from i2c_lcd import I2cLcd
 
+# ---- GLOBALS ----
+wlan = None
+mqtt = None
+
+# ---- DEVICE CONFIG ----
+# Always set a space between Hawe and the experiment/module
+DEVICE_NAME     = "Hawe Solar Info LCD"
+# Set the experiment/module in lowercase
+DEVICE_ID       = "solarinfo"
+# Log device name & id
+print(f"[initialize][device] name={DEVICE_NAME}, id={DEVICE_ID}")
+
+# Start with onboard LED, blink until initialization completed.
+utils.onboard_led_blink(times=2)
+
+# ---- LCD  ----
+
+# I2C channel and scl,sda pins
 I2C_CH  = 1
 SCL_PIN = 27
 SDA_PIN = 26
 
 lcd = None
+lcd_ok = False
 I2C_ADDR = None
-
-# ---- DEVICE CONFIG ----
-DEVICE_NAME     = "Hawe Solar Info LCD"
-DEVICE_ID       = "solarinfo"
-MQTT_CLIENT_ID  = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
-
-# ---- Data Dict ----
-solar_data = {
-    "power_from_solar": None,
-    "power_from_grid": None,
-    "power_to_grid": None,
-    "power_to_house": None,
-    "power_to_battery": None,
-    "power_from_battery": None,
-    "power_battery_charge": None,
-    "power_date_stamp": None,
-    "power_time_stamp": None
-}
-
-# ---- MQTT TOPICS ----
-TOPIC_AVAILABILITY = f"homeassistant/sensor/{secrets.BASE_TOPIC}_{DEVICE_ID}/availability"
-TOPIC_SOLAR_INFO   = "hawe/solar_info/helper"
 
 # ---- LCD INIT ----
 def init_lcd(scl_pin, sda_pin):
@@ -111,8 +109,29 @@ def init_lcd(scl_pin, sda_pin):
         lcd = None
         return False
 
+# ---- Solar Data Dict ----
+solar_data = {
+    "power_from_solar": None,
+    "power_from_grid": None,
+    "power_to_grid": None,
+    "power_to_house": None,
+    "power_to_battery": None,
+    "power_from_battery": None,
+    "power_battery_charge": None,
+    "power_date_stamp": None,
+    "power_time_stamp": None
+}
+
+# ---- MQTT ----
+MQTT_CLIENT_ID = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
+
+# ---- MQTT TOPICS ----
+TOPIC_AVAILABILITY = f"homeassistant/sensor/{secrets.BASE_TOPIC}_{DEVICE_ID}/availability"
+TOPIC_SOLAR_INFO   = "hawe/solar_info/helper"
+
 # ---- MQTT CALLBACK ----
 def mqtt_callback(topic, msg):
+    global mqtt
     topic = topic.decode()
     if topic == TOPIC_SOLAR_INFO:
         try:
@@ -128,9 +147,11 @@ def mqtt_callback(topic, msg):
 
 # ---- MQTT PUB & SUB ----
 def publish_availability():
+    global mqtt
     mqtt.publish(TOPIC_AVAILABILITY, b"online", retain=True)
 
 def subscribe_command():
+    global mqtt
     mqtt.subscribe(TOPIC_SOLAR_INFO)
 
 # ---- LCD DISPLAY ----
@@ -142,7 +163,8 @@ def fit(text, width):
         return text + (" " * (width - len(text)))
 
 def show_solar_lcd():
-    global lcd  # Ensure we access the global lcd object
+    # Ensure access the global lcd object
+    global lcd
 
     if not lcd:
         return
@@ -182,6 +204,7 @@ def show_solar_lcd():
 
 # ---- MAIN LOOP ----
 def main_loop():
+    global mqtt
     last_gc = time.ticks_ms()
     while True:
         mqtt.check_msg()
@@ -192,27 +215,32 @@ def main_loop():
             show_solar_lcd()
 
 # ---- BOOT ----
-try:
-    print("[boot] initializing...")
-    utils.onboard_led_blink(times=2)
+def main():
+    global wlan,mqtt,lcd_ok
 
-    wlan = connect.connect_wifi()
-    ok = init_lcd(SCL_PIN, SDA_PIN)
-    if not ok:
-        print("[boot] LCD not initialized")
+    try:
+        # Init LCD display first
+        lcd_ok = init_lcd(SCL_PIN, SDA_PIN)
+        if not lcd_ok:
+            print("[main] LCD not available — continuing without display.")
 
-    mqtt = connect.connect_mqtt(
-        MQTT_CLIENT_ID,
-        mqtt_callback,
-        last_will_topic=TOPIC_AVAILABILITY,
-        last_will_message="offline"
-    )
+        wlan = connect.connect_wifi()
 
-    publish_availability()
-    subscribe_command()
-    utils.onboard_led_on()
-    main_loop()
+        mqtt = connect.connect_mqtt(
+            MQTT_CLIENT_ID,
+            mqtt_callback,
+            last_will_topic=TOPIC_AVAILABILITY,
+            last_will_message="offline"
+        )
 
-except Exception as e:
-    print(f"[ERROR] Initialization failed: {e}")
-    utils.onboard_led_blink(times=10)
+        publish_availability()
+        subscribe_command()
+        utils.onboard_led_on()
+        main_loop()
+
+    except Exception as e:
+        print(f"[ERROR] Initialization failed: {e}")
+        utils.onboard_led_blink(times=10)
+
+# Start main
+main()
