@@ -2,7 +2,7 @@
 hawe_solarinfo_epaper.py
 Read from Home Assistant, using MQTT, solar info data and display on an ePaper display 2.66" white Waveshare.
 
-Date: 2025-06-20
+Date: 2025-06-27
 
 Author: Robert W.B. Linn
 
@@ -38,7 +38,7 @@ MQTT Callback
 [mqtt_callback] done=753
 """
 
-# SCRIPT START
+# ---- IMPORT ----
 import network
 import time
 import machine
@@ -53,31 +53,39 @@ import utils
 # ePaper
 from solar_display import SolarDisplay
 
-print(f"[initialize] hawe_solarinfo_epaper")
+# ---- GLOBALS ----
+wlan = None
+mqtt = None
 
-# Blink onboard LED until initialized
+# ---- DEVICE CONFIG ----
+# Always set a space between Hawe and the experiment/module
+DEVICE_NAME = "Hawe SolarInfo"
+# Set the experiment/module in lowercase
+DEVICE_ID = "solarinfo"
+# Log device name & id
+print(f"[initialize][device] name={DEVICE_NAME}, id={DEVICE_ID}")
+
+# Start with onboard LED, blink until initialization completed.
 utils.onboard_led_blink(times=2)
 
 # ---- ePaper ----
 TITLE = "Solar Info"
-epaper = None  # declared outside
+# Globals for the epaper
+epaper = None
+epaper_ok = False
 
 def init_epaper():
     global epaper
-
+    print("[init_epaper] initialization...")
     try:
         epaper = SolarDisplay()
-        print("[init_epaper] success")
-        return True
+        if epaper.available:
+            return True
+        else:
+            return False
     except Exception as e:
-        print("[init_epaper] failed:", e)
         epaper = None
         return False
-
-# ---- DEVICE CONFIG ----
-DEVICE_NAME     = "Hawe Solar Info"
-DEVICE_ID       = "solarinfo"
-MQTT_CLIENT_ID  = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
 
 # ---- Data Dict ----
 solar_data = {
@@ -92,6 +100,9 @@ solar_data = {
     "power_time_stamp": None
 }
 
+# ---- MQTT ----
+MQTT_CLIENT_ID = f"{secrets.BASE_TOPIC}_{DEVICE_ID}"
+
 # ---- MQTT TOPICS ----
 # Topic availability not required, but recommended if:
 # -You want to see online/offline status in HA
@@ -102,9 +113,6 @@ TOPIC_AVAILABILITY        = f"homeassistant/sensor/{secrets.BASE_TOPIC}_{DEVICE_
 
 # Topics Solar Data
 TOPIC_SOLAR_INFO          = "hawe/solar_info/helper"
-
-wlan = None
-mqtt = None
 
 # ---- MQTT CALLBACK ----
 # Handle MQTT messages subscribed
@@ -163,10 +171,7 @@ def show_wait_message():
     epaper.display_Landscape(epd.buffer_Landscape)
     
 def show_solar_summary():
-    global epaper
-
-    if not epaper:
-        return  # skip rendering
+    global epaper_ok
 
     if solar_data["power_from_solar"] is None:
         return  # Don't render if we have no data yet
@@ -193,7 +198,8 @@ def show_solar_summary():
         time_str = "0000"
     
     # Update display
-    epaper.display_panel(solar, house, grid, batt_level, batt, date_str, time_str, TITLE)
+    if epaper_ok:
+        epaper.display_panel(solar, house, grid, batt_level, batt, date_str, time_str, TITLE)
     
 # ---- MAIN LOOP ----
 def main_loop():
@@ -211,20 +217,21 @@ def main_loop():
 
 # ---- BOOT ----
 def main():
-    global wlan,mqtt
+    global wlan,mqtt,epaper_ok
     
     try:
         # Init ePaper display first
-        epaper_ok = init_epaper()
+        epaper_ok = init_epaper()       
         if not epaper_ok:
-            print("[boot] ePaper not available — continuing without display.")
+            print("[main] ePaper not available — continuing without display.")
         
-        epaper.display_wait(TITLE, "Starting...")
-        
-        epaper.display_wait(TITLE, "Connecting WiFi...")
+        if epaper_ok:
+            epaper.display_wait(TITLE, "Connecting WiFi...")    
         wlan = connect.connect_wifi()
 
-        epaper.display_wait(TITLE, "Connecting MQTT...")
+        if epaper_ok:
+            epaper.display_wait(TITLE, "Connecting MQTT...")
+
         mqtt = connect.connect_mqtt(
             MQTT_CLIENT_ID,
             mqtt_callback,
@@ -238,14 +245,15 @@ def main():
 
         utils.onboard_led_on()
         
-        epaper.display_wait(TITLE, "Ready. Waiting for data...")
+        if epaper_ok:
+            epaper.display_wait(TITLE, "Ready. Waiting for data...")
+
         main_loop()
 
     except Exception as e:
         print(f"[ERROR] Initialization failed: {e}")
         utils.onboard_led_blink(times=10)
 
-# show_wait_message()
-
+# Start main
 main()
 
