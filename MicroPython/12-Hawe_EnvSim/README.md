@@ -1,4 +1,4 @@
-# Home Assistant Workbook - Experiment Hawe_EnvSim
+# Home Assistant Workbook - Experiment Hawe_EnvSim  (MicroPython)
 
 This **Hawe** experiment simulates environment sensor values — **temperature**, **humidity**, and **pressure** — and publishes them via **MQTT** to **Home Assistant** using MQTT Discovery.
 
