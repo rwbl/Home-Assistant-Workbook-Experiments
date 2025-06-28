@@ -1,4 +1,4 @@
-# Home Assistant Workbook - Experiment Hawe_SHT20
+# Home Assistant Workbook - Experiment Hawe_SHT20 (MicroPython)
 
 This Hawe project reads **temperature**, **humidity**, and **dewpoint** from a **SHT20 sensor** using MicroPython.  
 The data is published via **MQTT** and integrated with **Home Assistant** using a discovery-like YAML configuration.
