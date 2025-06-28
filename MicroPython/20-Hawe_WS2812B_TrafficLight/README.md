@@ -102,9 +102,9 @@ hawe_trafficlight/
 
 ---
 
-## License
+## Disclaimer & License
 
-MIT License. See root project license in `../README.md`.
+- Disclaimer: See project root **Disclaimer** in `README.md`.
+- MIT License: See project root **License** in `README.md`.
 
 ---
-
