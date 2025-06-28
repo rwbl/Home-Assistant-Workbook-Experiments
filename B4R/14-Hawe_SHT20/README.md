@@ -1,5 +1,5 @@
 
-# Hawe SHT20 — ESP32 MQTT Sensor Integration with Home Assistant
+# Home Assistant Workbook - Experiment SHT20 (B4R)
 
 This experiment reads temperature, humidity, and dewpoint from an SHT20 sensor connected to an ESP32 board. It integrates with Home Assistant (HA) via MQTT using both:
 
