@@ -113,17 +113,9 @@ Located in `/tools`, these utility scripts include:
 
 ---
 
-## Disclaimer
+## Disclaimer & License
 
-This project is intended for **personal and educational use only**.  
-All experiments are provided _as-is_, with no warranties. Use at your own risk.  
-Always verify electrical connections and test thoroughly before deployment.
-
----
-
-## License
-
-MIT License — see the root-level `README.md` for license and author information.
+- Disclaimer: See project root **Disclaimer** in `README.md`.
+- MIT License: See project root **License** in `README.md`.
 
 ---
-
