@@ -1,10 +1,4 @@
-# Hawe Pico Status
-
-**Monitor your Raspberry Pi Pico W status via MQTT and Home Assistant using MQTT Discovery.**
-
----
-
-## Overview
+# Home Assistant Workbook - Experiment Hawe_Pico_Status (MicroPython)
 
 This Hawe experiment demonstrates how to use a **MicroPython script running on a Raspberry Pi Pico W** to:
 
