@@ -1,4 +1,4 @@
-# Home Assistant Workbook - Experiment Hawe_WS2812B
+# Home Assistant Workbook - Experiment WS2812B (B4R)
 
 This Hawe experiment demonstrates how to control a single WS2812B RGB LED from Home Assistant using MQTT. 
 The device runs MicroPython and receives light commands such as `ON/OFF`, `color`, and `brightness`.
