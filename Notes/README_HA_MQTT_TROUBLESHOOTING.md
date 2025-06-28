@@ -62,8 +62,8 @@ The *Hawe Pico Status* experiment is used as an example throughout.
 - **Issue:** Entity show state Unavailable in Lovelace
 - **Recommendation:**
   - Check *State* topic definition int the MQTT Discovery Config payload matches the *State* topic:
-    Config state_topic: `homeassistant/sensor/hawe_solarinfo_power_from_solar/state`
-    State topic: homeassistant/sensor/hawe_solarinfo_power_from_solar/state
+    - Config state_topic: `homeassistant/sensor/hawe_solarinfo_power_from_solar/state`
+    - State topic: homeassistant/sensor/hawe_solarinfo_power_from_solar/state
 
 ---
 
