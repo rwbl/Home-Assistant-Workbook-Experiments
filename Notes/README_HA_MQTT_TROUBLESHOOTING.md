@@ -100,11 +100,11 @@ mosquitto_pub -h <broker_ip> -u <user> -P <pass> -t "homeassistant/switch/hawe_t
 # Monitor switch state
 mosquitto_sub -h <broker_ip> -u <user> -P <pass> -t "hawe/testswitch/state" -v
 
-# Remove switch from HA
+# Remove switch using auto-discovery topic
 mosquitto_pub -h <broker_ip> -u <user> -P <pass> -t "homeassistant/switch/hawe/testswitch/config" -n -r
 
-# Remove All Retained
-mosquitto_sub -h <broker_ip> -u <user> -P <pass> --remove-retained - t "homeassistant/sensor#" -W 1
+# Remove All Retained Sensors
+mosquitto_sub -h <broker_ip> -u <user> -P <pass> --remove-retained - t "homeassistant/sensor/#" -W 1
 ```
 
 ---
@@ -127,7 +127,7 @@ mosquitto_sub -h <broker_ip> -u <user> -P <pass> --remove-retained - t "homeassi
   - Most reliable but slowest and more overhead.
   - Use when duplicates would cause problems (e.g., financial transactions).
 
-Example Case ESP32
+**Example Case ESP32**
 
 Change from QoS 0 (which might lose messages) to QoS 1, the ESP32 receives every message at least once, improving reliability, updates started showing consistently.
 
