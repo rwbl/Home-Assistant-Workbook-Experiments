@@ -5,6 +5,19 @@ The *Hawe Pico Status* experiment is used as an example throughout.
 
 ---
 
+## MQTT Discovery vs Manual YAML for MQTT devices
+
+MQTT Discovery is the HA recommended, modern way.
+A device (Pico W ESP32, etc) publishes special config messages on topics like:
+- homeassistant/switch/my_switch/config
+- HA automatically creates the switch entities.
+- Do NOT put those entities in YAML at all.
+
+Manual YAML config for MQTT devices is legacy and more error-prone, but still supported for sensors and switches.
+When manual config, ensure to specify *platform: mqtt* in each entity.
+
+---
+
 ## MQTT Common Pitfalls
 
 ### 1. Incorrect MQTT Topic Naming
