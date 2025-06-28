@@ -2,6 +2,7 @@
 
 This working document captures key lessons learned and best practices related to Home Assistant MQTT, based on the Hawe experiments.  
 The *Hawe Pico Status* experiment is used as an example throughout.
+**Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
 
 ---
 
@@ -163,12 +164,9 @@ Change from QoS 0 (which might lose messages) to QoS 1, the ESP32 receives every
 
 ---
 
-**Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
+## Disclaimer & License
 
----
-
-## License
-
-MIT License. See root project license in `../README.md`.
+- Disclaimer: See project root **Disclaimer** in `README.md`.
+- MIT License: See project root **License** in `README.md`.
 
 ---
