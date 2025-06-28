@@ -1,6 +1,6 @@
-# Hawe Traffic Light – MQTT Controlled NeoPixel Project
+# Home Assistant Workbook - Experiment Hawe_TrafficLight (MicroPython)
 
-This project implements a traffic light using a WS2812B LED strip and MicroPython.
+This project implements a traffic light using a WS2812B LED strip (NeoPixel) and MicroPython.
 The lights are controlled over MQTT and integrate with Home Assistant via autodiscovery-like YAML configuration.
 
 ---
