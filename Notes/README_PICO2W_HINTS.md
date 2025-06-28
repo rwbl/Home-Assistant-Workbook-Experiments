@@ -1,6 +1,7 @@
 # Quick Tips for Raspberry Pi Pico 2 W + Thonny
 
 This working document captures key lessons learned and best practices related to the Raspberry Pi Pico W (version 1 & 2) + Thonny, based on the Hawe experiments.
+**Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
 
 ---
 
@@ -92,13 +93,9 @@ If you see **`MemoryError`** or REPL connection issues:
 
 ---
 
-**Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
+## Disclaimer & License
+
+- Disclaimer: See project root **Disclaimer** in `README.md`.
+- MIT License: See project root **License** in `README.md`.
 
 ---
-
-## License
-
-MIT License. See root project license in `../README.md`.
-
----
-
