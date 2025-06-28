@@ -1,7 +1,5 @@
 # Home Assistant Workbook - Experiment Hawe_RotaryLight (MicroPython)
 
-## Overview
-
 This project uses a rotary encoder connected to a Raspberry Pi Pico W to control a light's brightness and on/off state. The light state and brightness are published and controlled via MQTT, making it compatible with Home Assistant (HA).
 
 The onboard LED of the Pico W simulates the controlled light and reflects the current brightness and on/off state.
