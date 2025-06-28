@@ -57,6 +57,14 @@ The *Hawe Pico Status* experiment is used as an example throughout.
 - **Recommendation:** Let the device handle discovery and state publication.  
   In most cases, HA only needs a minimal component (e.g., just `button.py` was used in this project).
 
+### 6. Entity State Unavailable
+
+- **Issue:** Entity show state Unavailable in Lovelace
+- **Recommendation:**
+  - Check *State* topic definition int the MQTT Discovery Config payload matches the *State* topic:
+    Config state_topic: `homeassistant/sensor/hawe_solarinfo_power_from_solar/state`
+    State topic: homeassistant/sensor/hawe_solarinfo_power_from_solar/state
+
 ---
 
 ## Best Practices Checklist
@@ -81,6 +89,47 @@ The *Hawe Pico Status* experiment is used as an example throughout.
 - Add a short delay between clearing and publishing config (`time.sleep(1)`) to ensure the broker updates properly  
 - For debugging, publish discovery messages manually via HA or MQTT CLI  
 - To avoid confusion, match `object_id` with the last segment of the `state_topic` (e.g., `rssi`)
+
+---
+
+## Mosquitto Example Commands**
+```bash
+# Publish auto-discovery config
+mosquitto_pub -h <broker_ip> -u <user> -P <pass> -t "homeassistant/switch/hawe_testswitch/config" -m '{...}' -r
+
+# Monitor switch state
+mosquitto_sub -h <broker_ip> -u <user> -P <pass> -t "hawe/testswitch/state" -v
+
+# Remove switch from HA
+mosquitto_pub -h <broker_ip> -u <user> -P <pass> -t "homeassistant/switch/hawe/testswitch/config" -n -r
+
+# Remove All Retained
+mosquitto_sub -h <broker_ip> -u <user> -P <pass> --remove-retained - t "homeassistant/sensor#" -W 1
+```
+
+---
+
+## MQTT QoS Levels
+
+**QoS** controls how messages are delivered between the MQTT client (like the Pico W or an ESP32) and the broker (like the HA MQTT server).
+- **QoS 0 — At most once**
+  - Message is sent once, no confirmation.
+  - "Fire and forget."
+  - Fastest, but messages may be lost (e.g., due to network issues).
+  - Use when occasional lost messages are acceptable.
+- **QoS 1 — At least once**
+  - Message is sent at least once and the sender waits for an acknowledgment.
+  - Message might be delivered multiple times (duplicates possible).
+  - More reliable than QoS 0.
+  - Used when you want to guarantee delivery but can handle duplicates.
+- **QoS 2 — Exactly once**
+  - Ensures message is received exactly once using a handshake.
+  - Most reliable but slowest and more overhead.
+  - Use when duplicates would cause problems (e.g., financial transactions).
+
+Example Case ESP32
+
+Change from QoS 0 (which might lose messages) to QoS 1, the ESP32 receives every message at least once, improving reliability, updates started showing consistently.
 
 ---
 
