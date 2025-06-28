@@ -1,4 +1,4 @@
-# Home Assistant Workbook - Experiment Hawe Rotary Light (B4R)
+# Home Assistant Workbook - Experiment Hawe_Rotary_Light (B4R)
 
 ---
 
