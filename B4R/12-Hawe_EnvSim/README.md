@@ -1,4 +1,4 @@
-# Home Assistant Workbook - Experiment Hawe_EnvSim
+# Home Assistant Workbook - Experiment Hawe_EnvSim (B4R
 
 Simulates an environment sensor (temperature, humidity, pressure) using an ESP32 board.
 
