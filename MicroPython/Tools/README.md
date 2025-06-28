@@ -4,13 +4,9 @@ This folder contains useful MicroPython scripts such as I2C scanner utilities an
 
 ---
 
-**Disclaimer:** The tools are provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
+## Disclaimer & License
+
+- Disclaimer: See project root **Disclaimer** in `README.md`.
+- MIT License: See project root **License** in `README.md`.
 
 ---
-
-## License
-
-MIT License. See root project license in `../README.md`.
-
----
-
