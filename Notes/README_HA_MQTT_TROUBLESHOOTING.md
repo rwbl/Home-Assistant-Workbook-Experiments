@@ -84,11 +84,19 @@ The *Hawe Pico Status* experiment is used as an example throughout.
 
 ## Pro Tips
 
+- Use MQTT Discovery for all your real hardware devices — no YAML needed for those
 - After major MQTT changes, **delete retained messages** using MQTT Explorer or similar tools  
 - **Restart Home Assistant** after modifying MQTT topics or discovery payloads  
 - Add a short delay between clearing and publishing config (`time.sleep(1)`) to ensure the broker updates properly  
 - For debugging, publish discovery messages manually via HA or MQTT CLI  
 - To avoid confusion, match `object_id` with the last segment of the `state_topic` (e.g., `rssi`)
+
+## Simulation
+
+For simulation, create automations or Node-RED flows in HA that publish data on the same MQTT topics the devices use.
+To have HA show the simulated sensors, options are:
+- Either publish MQTT discovery config messages for the simulated devices (like the ESP32 would do).
+- Or define manual sensors or switches in YAML (with platform: mqtt) pointing to those topics.
 
 ---
 
