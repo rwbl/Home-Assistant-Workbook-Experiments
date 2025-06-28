@@ -1,4 +1,4 @@
-# Home Assistant Workbook - Experiment Hawe Rotary Encoder (B4R)
+# Home Assistant Workbook - Experiment Hawe_RotaryLight (MicroPython)
 
 ## Overview
 
