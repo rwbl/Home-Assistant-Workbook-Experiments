@@ -1,6 +1,7 @@
 # YAML for Home Assistant: Cheat Sheet
 
 This working document summarizes **YAML** usage within Home Assistant (HA), with focus on syntax, best practices, common tasks, and helpful tips.
+**Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
 
 ---
 
@@ -179,13 +180,9 @@ automation: !include automations.yaml
 
 ---
 
-**Disclaimer:** This guide is provided as-is, without any guarantee or liability for errors, omissions, or misconfigurations.
+## Disclaimer & License
+
+- Disclaimer: See project root **Disclaimer** in `README.md`.
+- MIT License: See project root **License** in `README.md`.
 
 ---
-
-## License
-
-MIT License. See root project license in `../README.md`.
-
----
-
