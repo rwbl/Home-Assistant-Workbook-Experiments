@@ -105,23 +105,9 @@ Sensor values are published every **60 seconds** via a measurement timer.
 
 ---
 
-## Disclaimer
+## Disclaimer & License
 
-This project is developed for **personal, educational use only**.  
-All experiments and code are provided _as-is_ and should be used **at your own risk**.  
-Always test thoroughly and exercise caution when connecting hardware components or integrating with Home Assistant.
-
----
-
-## License
-
-MIT License — use freely, modify, and share.
-
----
-
-## Author
-
-Developed by **Robert W.B. Linn**  
-This experiment is part of the [Hawe – Home Assistant Workbook Experiments](https://github.com/rwbl/Home-Assistant-Workbook-Experiments) project.
+- Disclaimer: See project root **Disclaimer** in `README.md`.
+- MIT License: See project root **License** in `README.md`.
 
 ---
