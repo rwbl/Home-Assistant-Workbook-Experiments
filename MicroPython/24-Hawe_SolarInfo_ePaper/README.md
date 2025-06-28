@@ -1,10 +1,4 @@
-# Hawe Experiment: Hawe_SolarInfo_ePaper
-
-This folder contains the MicroPython code and resources for the **Hawe_SolarInfo_ePaper** experiment, part of the Hawe (Home Assistant Workbook Experiments) series.
-
----
-
-## Description
+# Home Assistant Workbook - Experiment Hawe_SolarInfo_ePaper (MicroPython)
 
 This experiment reads live solar power data from a Home Assistant production system via MQTT and displays it on a **Waveshare 2.66" e-Paper display** (resolution 296×152 pixels) connected to a Raspberry Pi Pico WH.  
 Data is published from the HA production system via a Node-RED REST/MQTT bridge and visualized on the development system with a clean, flicker-minimized ePaper layout.
