@@ -2,7 +2,7 @@
 
 Simulates an environment sensor (temperature, humidity, pressure) using an ESP32 board.
 
-This experiment is part of the **Hawe – Home Assistant Workbook Experiments** and demonstrates how to publish **MQTT discovery** and **state topics** from a B4R (Basic4Arduino) program to integrate with **Home Assistant**.
+This experiment is part of the **Hawe – Home Assistant Workbook Experiments** and demonstrates how to publish **MQTT discovery** and **state topics** from a B4R program to integrate with **Home Assistant**.
 
 ## Summary
 
