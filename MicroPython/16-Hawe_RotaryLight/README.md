@@ -1,4 +1,4 @@
-# Hawe Rotary Encoder Light Controller
+# Home Assistant Workbook - Experiment Hawe Rotary Encoder (B4R)
 
 ## Overview
 
