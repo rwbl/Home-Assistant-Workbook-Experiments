@@ -1,10 +1,4 @@
-# Hawe Experiment: Hawe_SolarInfo_OLED
-
-This folder contains the MicroPython code and resources for the **Hawe_SolarInfo_OLED** experiment, part of the Hawe (Home Assistant Workbook Experiments) series.
-
----
-
-## Description
+# Home Assistant Workbook - Experiment Hawe_SolarInfo_OLED (MicroPython)
 
 This experiment reads live solar power data from a Home Assistant production system via MQTT and displays it on a 0.96" 4-pin white OLED (I2C).  
 Data is published from the HA production system via a Node-RED REST/MQTT bridge and visualized on the development system.
