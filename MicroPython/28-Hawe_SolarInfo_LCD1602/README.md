@@ -1,10 +1,4 @@
-# Hawe Experiment: Hawe_SolarInfo_LCD1602
-
-This folder contains the MicroPython code and resources for the **Hawe_SolarInfo_LCD1602** experiment, part of the Hawe (Home Assistant Workbook Experiments) series.
-
----
-
-## Description
+# Home Assistant Workbook - Experiment Hawe_SolarInfo_LCD1602 (MicroPython)
 
 This experiment reads live solar power data from a Home Assistant production system via MQTT and displays it on a **1602 LCD with I2C (PCF8574 backpack)**.  
 Data is published from the HA production system via a Node-RED REST/MQTT bridge and visualized on the development system.
