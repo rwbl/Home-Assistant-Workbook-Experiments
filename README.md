@@ -62,23 +62,24 @@ Explore the subfolders for platform-specific instructions, examples, and librari
 
 ## Available Experiments
 
-| Experiment                     | Description                                | MicroPython | B4R |
-|-------------------------------|--------------------------------------------|-------------|-----|
-| **HaWe_EnvSim**               | Simulates temperature, humidity, pressure  | ✅           | ✅   |
-| **HaWe_SHT20**                | Read SHT20 temperature, humidity, dewpoint | ✅           | ✅   |
-| **HaWe_RotaryLight**          | Rotary Encoder with Push-Button            | ✅           | ✅   |
-| **HaWe_WS2812B**              | Control a single LED                       | ✅           | ❌   |
-| **HaWe_WS2812B_TrafficLight** | Control 3 LEDs red, yellow, green          | ✅           | ❌   |
-| **HaWe_SolarInfo_OLED**       | Display Solar info on 0.96" OLED display   | ✅           | ❌   |
-| **HaWe_SolarInfo_ePaper**     | Display Solar info on 2.66" ePaper display | ✅           | ❌   |
-| **HaWe_Pico_Status**          | Monitor your Raspberry Pi Pico W status    | ✅           | ❌   |
-| **HaWe_SolarInfo_LCD1602**    | Display Solar info on LCD1602 display      | ✅           | ❌   |
-| **HaWe_TM1637**               | 7-Segment Display                           | ❌           | 🕓   |
-| **HaWe_LCD2004**              | LCD 2004 Display                            | ❌           | 🕓   |
-| **HaWe_SR04**                 | Distance Sensor                             | ❌           | 🕓   |
+| Experiment                     | Description                                    | MicroPython | B4R |
+|-------------------------------|-------------------------------------------------|-------------|-----|
+| **HaWe_EnvSim**               | Simulates temperature, humidity, pressure       | ✅           | ✅   |
+| **HaWe_SHT20**                | Read SHT20 temperature, humidity, dewpoint      | ✅           | ✅   |
+| **HaWe_RotaryLight**          | Rotary Encoder with Push-Button                 | ✅           | ✅   |
+| **HaWe_WS2812B**              | Control a single LED                            | ✅           | ❌   |
+| **HaWe_WS2812B_TrafficLight** | Control 3 LEDs red, yellow, green               | ✅           | ❌   |
+| **HaWe_SolarInfo_OLED**       | Display Solar info on 0.96" OLED display        | ✅           | ❌   |
+| **HaWe_SolarInfo_ePaper**     | Display Solar info on 2.66" ePaper display      | ✅           | ❌   |
+| **HaWe_Pico_Status**          | Monitor your Raspberry Pi Pico W status         | ✅           | ❌   |
+| **HaWe_SolarInfo_LCD1602**    | Display Solar info on LCD1602 display           | ✅           | ❌   |
+| **HaWe_TM1637**               | 7-Segment Display                               | ❌           | 🕓   |
+| **HaWe_LCD2004**              | LCD 2004 Display                                | ❌           | 🕓   |
+| **HaWe_SR04**                 | Distance Sensor                                 | ❌           | 🕓   |
+| **HaWe_LegoTrain**            | Control LEGO® PowerFunctions train via LOvelace | ❌           | 🚧   |
 *(More experiments planned)*
 
-✅ = Completed, ❌ = Not planned, 🕓 = Planned
+✅ = Completed, ❌ = Not planned, 🕓 = Planned, 🚧= In Progress
 
 ---
 
@@ -213,9 +214,14 @@ Then reload MQTT and check your entities in Home Assistant.
 
 ## Disclaimer
 
-This project is developed for **personal, educational use only**.  
-All experiments and code are provided _as-is_ and should be used **at your own risk**.  
-Always test thoroughly and exercise caution when connecting hardware components or integrating with Home Assistant.
+- This project is developed for **personal, educational use only**.  
+- All experiments and code are provided _as-is_ and should be used **at your own risk**.  
+- Always test thoroughly and exercise caution when connecting hardware components or integrating with Home Assistant.
+
+**Trademarks**
+- LEGO® is a trademark of the LEGO Group of companies, which does not sponsor, authorize, or endorse this project.
+- The Bluetooth® word mark and logos are registered trademarks owned by Bluetooth SIG, Inc.
+- All trademarks are property of their respective owners.
 
 ---
 
@@ -225,8 +231,9 @@ Special thanks to:
 - The developers of **Home Assistant** — the open-source home automation platform
 - The creators and contributors of **MicroPython** and its ecosystem (e.g., umqtt, neopixel)
 - The **MicroPython** and **Home Assistant** communities for their knowledge sharing and tools
-- The team behind **B4X** (including **B4R** and **B4J**) for providing a powerful free development platform
+- The team behind **B4X** (including **B4A**, **B4R** and **B4J**) for providing a powerful free development platform
 - All contributors of **B4X** libraries and community forums for their continued support and ideas
+
 ---
 
 ## License
@@ -238,3 +245,5 @@ MIT License — use freely, adapt, and share.
 ## Author
 
 Developed by **Robert W.B. Linn** — powered by curiosity and AI assistance.
+
+---
