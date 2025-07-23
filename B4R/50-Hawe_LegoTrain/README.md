@@ -10,9 +10,11 @@ It demonstrates HTTP & MQTT communication, infrared control of the LEGO® 8884 I
 In short, this is an **ESP32 & B4R-powered LEGO® Train Controller (HTTP & IR)**.
 
 **Prototype**
+
 <img width="835" height="339" alt="image" src="https://github.com/user-attachments/assets/545be4ac-6d6d-4153-adf8-1d8909e8f527" />
 
 **Home Assistant Lovelace Dashboard**
+
 <img width="656" height="539" alt="image" src="https://github.com/user-attachments/assets/5bc81028-dab1-4879-925f-523031db7713" />
 
 ## Educational Goals
