@@ -1,0 +1,39 @@
+type: masonry
+path: hawe-lego-train
+title: Hawe LEGO Train
+cards:
+  - type: vertical-stack
+    cards:
+      - type: light
+        entity: light.hawe_legotrain_speed
+        name: LEGO Train
+        icon: mdi:train
+      - type: entities
+        title: Direction
+        entities:
+          - entity: switch.hawe_legotrain_direction
+            name: Direction (OFF = Forward, ON = Reverse)
+      - type: entities
+        title: Headlights
+        entities:
+          - entity: switch.hawe_legotrain_headlights
+            name: Headlights
+  - type: gauge
+    entity: sensor.lego_train_speed
+    name: Train Speed
+    min: 0
+    max: 100
+    severity:
+      green: 0
+      yellow: 60
+      red: 80
+  - show_name: true
+    show_icon: true
+    type: button
+    name: Emergency Stop
+    icon: mdi:stop-circle-outline
+    tap_action:
+      action: call-service
+      service: light.turn_off
+      target:
+        entity_id: light.hawe_legotrain_speed

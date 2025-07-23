@@ -1,0 +1,22 @@
+# hawe/sensors/template/hawe_legotrain.yaml
+# Modern template sensor (under sensor:)
+# Shows LEGO Train Speed as 0–8 based on brightness
+# DO NOT USED - platform: template
+
+sensor:
+  - name: "Hawe LEGO Train Speed"
+    unique_id: "hawe_legotrain_speed"
+    unit_of_measurement: "km/h"
+    icon: mdi:speedometer
+    state: >
+      {% set l = states.light.hawe_legotrain_speed %}
+      {% if l is not none and 'brightness' in l.attributes %}
+        {% set b = l.attributes.brightness | int(0) %}
+        {% if b == 0 %}
+          0
+        {% else %}
+          {{ ((b / 255) * 100) | round(0, 'common') }}
+        {% endif %}
+      {% else %}
+        0
+      {% endif %}
