@@ -76,7 +76,7 @@ Explore the subfolders for platform-specific instructions, examples, and librari
 | **HaWe_TM1637**               | 7-Segment Display                               | ❌           | 🕓   |
 | **HaWe_LCD2004**              | LCD 2004 Display                                | ❌           | 🕓   |
 | **HaWe_SR04**                 | Distance Sensor                                 | ❌           | 🕓   |
-| **HaWe_LegoTrain**            | Control LEGO® PowerFunctions train via Lovelace | ❌           | 🚧   |
+| **HaWe_LegoTrain**            | Control LEGO® PowerFunctions train via Lovelace | ❌           | ✅   |
 *(More experiments planned)*
 
 ✅ = Completed, ❌ = Not planned, 🕓 = Planned, 🚧= In Progress
