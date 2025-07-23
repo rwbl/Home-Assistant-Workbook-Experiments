@@ -1,5 +1,5 @@
 # Experiment 50-HaWe_LEGO_Train (B4R)
-# WORK IN PROGRESS
+
 **Project: Home Assistant Workbook Experiments**
 
 ## Brief
