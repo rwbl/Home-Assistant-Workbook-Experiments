@@ -215,7 +215,8 @@ Then reload MQTT and check your entities in Home Assistant.
 ## Disclaimer
 
 - This project is developed for **personal, educational use only**.  
-- All experiments and code are provided _as-is_ and should be used **at your own risk**.  
+- All experiments and code are provided _as-is_ and should be used **at your own risk**.
+- Any guides are provided _as-is_, without any guarantee or liability for errors, omissions, or misconfigurations.
 - Always test thoroughly and exercise caution when connecting hardware components or integrating with Home Assistant.
 
 **Trademarks**
