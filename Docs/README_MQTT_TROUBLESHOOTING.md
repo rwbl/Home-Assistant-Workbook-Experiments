@@ -86,6 +86,49 @@ When manual config, ensure to specify *platform: mqtt* in each entity.
 
 ---
 
+## MQTT Discovery Re-Publish
+It will not harm Home Assistant to re-publish the MQTT discovery config every time the LegoTrain starts — as long as using `retain=true` and the `unique_id` is stable.
+
+### Why It’s Safe
+1. Home Assistant de-duplicates config updates:
+* When an MQTT discovery topic is published again with the same unique_id and content, Home Assistant treats it as a refresh.
+* If the content has changed (e.g., new availability_topic or icon), HA updates the entity accordingly.
+* Even if you publish the config every time on boot — HA will not create duplicate entities.
+
+2. It's actually common practice:
+Devices like Tasmota, ESPHome, Zigbee2MQTT re-publish discovery config every time they boot.
+This ensures:
+* The entity appears (if missing),
+* It’s updated if the config changed,
+* Retained discovery messages stay current.
+
+### What to Watch Out For
+Rule = Why It Matters
+Use retain: true	              So HA can restart and still remember the config
+Use stable unique_id	          Otherwise HA creates new entities each time
+Wait until MQTT is connected	  So discovery messages don’t get lost
+void flooding	                  A short delay between messages (like 100–250ms) is polite
+
+Example:
+MQTTMod.Remove(Array As String(MQTT_CONFIG_TOPIC_SPEED))
+Delay(500)
+MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_SPEED), _
+                Array As String(MQTT_CONFIG_PAYLOAD_SPEED))
+
+This is Clean, Retained, Throttled, Works reliably
+
+Since startup performance matters and checking for retained discovery config can take several seconds — it’s absolutely OK to skip the retained check and always publish the config immediately on boot.
+This guarantees the entities exist and avoids complexity.
+
+### Summary MQTT Discovery Config Topics Re-Publish
+**Question = Answer**
+Will it break Home Assistant?	= No
+Will it create duplicate entities?	= No (if unique_id is consistent)
+Is it bad practice?	= No — common in devices like Tasmota & ESPHome
+Publish discovery config on every boot?	= Yes, unless constrained on bandwidth or want to optimize further
+
+---
+
 ## Best Practices Checklist
 
 | Area                  | Recommendation                                                                    |
