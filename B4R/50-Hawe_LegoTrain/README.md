@@ -61,15 +61,15 @@ GND	= GND
 ### IR Transmitter 38kHz
 **KY-005 = ESP32**
 ```
-VCC = 3V3
+VCC  = 3V3
 Data = GPIO12 (D12)
-GND = GND (Black)
+GND  = GND (Black)
 ```
 
 ### LEGO IR Receiver 8884 38 kHz, reaching distance at least 30' (10m)
 ```
-Output Blue	= PF Train Motor
-Output Red = PF Headlights
+Output Blue = PF Train Motor
+Output Red  = PF Headlights
 ```
 
 ## Folder Structure
