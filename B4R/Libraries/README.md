@@ -10,9 +10,10 @@ These libraries must be present in your **B4R additional libraries path** to ens
 
 ## Included Dependencies
 
-| Experiment       | Required Library |
-|------------------|------------------|
-| `hawe_sht20`     | `rSHT20`         |
+| Experiment       | Required Library    |
+|------------------|---------------------|
+| `hawe_sht20`     | `rSHT20`            |
+| `hawe_legotrain` | `rPowerFunctionsEx` |
 
 ---
 
@@ -43,4 +44,7 @@ Read more about [B4R](https://www.b4x.com/b4r.html) - Easily build native Arduin
 
 ## License
 
-Unless otherwise noted, all libraries are subject to their original licenses. Please check individual `.h` or `.cpp` files for license headers or documentation.
+Unless otherwise noted, all libraries are subject to their original licenses.
+
+Please check individual `.h` or `.cpp` files for license headers or documentation.
+
