@@ -19,11 +19,11 @@ Version=4
 ' Author:	Robert W.B. Linn
 ' Brief:	HA Light experiment with an ESP32 + Rotary Encode & Push-Button.
 '			Set the light brightness 0-255 (0-100) and the state on or off.
-' Hardware:	ESP32-Wrover Kit (ESP32 Dev Module, COM4), Keyes KY-005 IR Transmitter.
-' Software:	B4R v4.00 (64 bit), arduino-cli 1.22, Java JDK 14
+' Hardware:	ESP32-Wrover Kit (B4R board ESP32 Dev Module, COM4), Keyes KY-005 IR Transmitter.
+' Software:	B4R v4.00 (64 bit), arduino-cli 1.22, Java JDK 14.
 '		    Additional libraries rESP8266WiFi 1.60, rMQTT v1.40, rRandomAccessFile v1.91, rESP32LEDControl v1.00, rPowerFunctionsEx v0.21.
-' Notes:	The HA entities are created using MQTT Discovery.
-'			HA Entity							HA Message
+' Notes:	The HA entities are created using MQTT Discovery very time on boot.
+'			HA Entity							HA Message Received
 '			light.hawe_legotrain_speed			[MQTT_MessageArrived] topic=hawe/legotrain/speed/set, payload={"state":"ON","brightness":89}
 '			switch.hawe_legotrain_direction		[MQTT_MessageArrived] topic=hawe/legotrain/direction/set, payload=ON or OFF
 '			switch.hawe_legotrain_headlights	[MQTT_MessageArrived] topic=hawe/legotrain/headlights/set, payload=ON or OFF
@@ -31,14 +31,21 @@ Version=4
 '			MQTT payloads are hardcoded As global strings. Not making use of JoinStrings or concatenation to avoid memory issues.
 '			Long MQTT payloads like AutoDiscovery config, are send in chunks because payload length > 128.
 '			MQTT methods are using B4R IDE logging.
+'			After boot complete, the train headlights are turned on.
 ' Secrets:	Defined in WiFiMod & MQTTMod.
 ' Wiring
-' KY-005	= ESP32
-' VCC		= 3V3
-' Data		= GPIO12 (D12)
-' GND		= GND (Black)
+' DC-DC Power Supply Adapter Step Down Module 9V → 5V (AZ-Delivery)
+' DC.DC Adapter	= ESP32
+' VCC			= Vin
+' GND			= GND
+' 
+' IR Transmitter 38kHz
+' KY-005		= ESP32
+' VCC			= 3V3
+' Data			= GPIO12 (D12)
+' GND			= GND (Black)
 '
-' LEGO IR Receiver
+' LEGO IR Receiver 8884 38 kHz, reaching distance at least 30' (10m)
 ' Output Blue	= PF Train Motor
 ' Output Red	= PF Headlights
 
@@ -49,7 +56,7 @@ Version=4
 #End Region
 
 Sub Process_Globals
-	Private VERSION As String = "Hawe LegoTrain v20250723"
+	Private VERSION As String = "Hawe LegoTrain v20250724"
 
 	' Communication
 	Public SerialLine As Serial
@@ -133,17 +140,12 @@ Sub Process_Globals
 		"""brightness"":#BRIGHTNESS#" _
 	"}"
 
+	Private MQTT_DELAY_AFTER_TASK As ULong = 100	' ms, short delay after every MQTT task like publish
+
+
 	' Speed ranges
 	Private SPEED_STEP_BRK As Byte = 8
 	Private SPEED_STEP_MAX As Byte = 16
-
-	' Timer Check MQTTAD
-	Private MQTTCheckEntityTimer As Timer
-	Private MQTTCHECKENTITYTIMER_INTERVAL As ULong = 1000	' ms, every 1 second
-	Private MQTTCHECKENTITYTIMER_MAX As UInt = 10			' check retained entity for max 60 seconds then publish MQTTAD
-	Private CheckEntityTimerCounter As UInt = 0				'
-	' Retained config topic detection
-	Private TopicConfigReceived As Boolean = False
 
 	'INFO Remove MQTTAD config topic using mosquitto client
 	'mosquitto_pub -h <broker_ip> -u <user> -P <pass> -t "homeassistant/light/hawe/legotrain/config" -n -r
@@ -153,17 +155,17 @@ Sub Process_Globals
 
 	' PowerFunctions
 	Private Train As PowerFunctionsEx
-	Private OutputBLUE As UInt = Train.BLUE			' Train motor connected to IR RECV channel blue
-	Private OutputRED As UInt = Train.RED
+	Private OutputBLUE As UInt = Train.BLUE		' Train motor connected to IR RECV output blue
+	Private OutputRED As UInt = Train.RED		' Headlights connected to the IR RECV output red
 	' Channel
-	Private Channel As UInt = Train.CHANNEL1
+	Private Channel As UInt = Train.CHANNEL1	' Ensure IR RECV channel 1 is set
 	' Direction
 	Private DirectionReverse As Boolean = False
 
 	' Light - Helper to keep the state of the HA light
-	Private LightState As Boolean = False		' True = ON, False = OFF
+'	Private LightState As Boolean = False		' True = ON, False = OFF
 	Private LightStateLast As Boolean = False	' Default state if nothing received
-	Private LightBrightness As Byte = 0			' Brightness (0–255), start at 0 brightness (off)
+'	Private LightBrightness As Byte = 0			' Brightness (0–255), start at 0 brightness (off)
 	Private LightBrightnessLast As Byte = 255	' Default brightness if nothing is received yet
 
 	' Helper
@@ -173,117 +175,98 @@ End Sub
 Private Sub AppStart
 	' Init serialline
 	SerialLine.Initialize(115200)
-	Log(CRLF, "[AppStart]", VERSION)
+	Log(CRLF, Millis, "[AppStart] ", VERSION)
 
-	' Initialize PowerFunctions
+	' Initialize PowerFunctions instance
 	Train.Initialize(pinIRTransmitter, Channel)
-	Log("[AppStart]Train init OK.")
+	Log(Millis, "[AppStart] Train init OK.")
 
-	' MQTT
-	MQTTCheckEntityTimer.Initialize("MQTTCheckEntityTimer_Tick", MQTTCHECKENTITYTIMER_INTERVAL)
-	MQTTCheckEntityTimer.Enabled = False
+	' Set the headlights to false
+	SetHeadlights(False)
 	
 	' Connect to the network
 	WiFiMod.Connected = WiFiMod.Connect
 
-	' Wifi connected
+	' Start MQTT connection and tasks after Wifi connected
 	If WiFiMod.Connected Then
 		' Connect to the broker
 		MQTTMod.Initialize(MQTT_CLIENT_ID, WiFiMod.Client.Stream)
 		MQTTMod.Connect(0)
-		Delay(1000)
+		Delay(MQTT_DELAY_AFTER_TASK)
 
 		If MQTTMod.Connected Then
-			' Start the retained state topic timer
-			MQTTCheckEntityTimer.Enabled = True
-			Log("[AppStart] Waiting for retained config messages...",MQTTCHECKENTITYTIMER_MAX,"s.")
+			' Subscribe to availability topic
+			MQTTMod.Subscribe(Array As String(MQTT_STATE_TOPIC_AVAILABILITY))
+			Delay(MQTT_DELAY_AFTER_TASK)
 
-			' Publish availability
+			' Publish topic availability with state online
 			MQTTMod.Publish(Array As String(MQTT_STATE_TOPIC_AVAILABILITY), Array As String("online"))
-			Delay(1000)
+			Delay(MQTT_DELAY_AFTER_TASK)
 
-			' Subscribe to retained config topic (speed only)
-			MQTTMod.Subscribe(Array As String(MQTT_CONFIG_TOPIC_SPEED))
-			Delay(1000)
+			' Publish the MQTT discovery config messages
+			MQTTPublishConfig
+			Delay(MQTT_DELAY_AFTER_TASK)
 		End If
 	End If
 End Sub
 
-#Region Retained State Check
-Private Sub MQTTCheckEntityTimer_Tick
+#Region MQTTPublishConfig
+' Publish the MQTT configuration messages
+Private Sub MQTTPublishConfig
+
+	' Only action if MQTT is connected
 	If MQTTMod.Connected == False Then Return
 
-	' Increase the counter
-	CheckEntityTimerCounter = CheckEntityTimerCounter + 1
+	Log(Millis, "[MQTTPublishConfig] Publishing topics...")
 
-	' Retained config topic has NOT been received - publish the config entities
-	If CheckEntityTimerCounter == MQTTCHECKENTITYTIMER_MAX Then
-		Log("[CheckEntityTimer_Tick] Discovery Entity not found > publishing MQTT discovery...")
+	' Speed
+	MQTTMod.Remove(Array As String(MQTT_CONFIG_TOPIC_SPEED))
+	Delay(MQTT_DELAY_AFTER_TASK)
+	MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_SPEED), _
+					Array As String(MQTT_CONFIG_PAYLOAD_SPEED))
+	Delay(MQTT_DELAY_AFTER_TASK)
 
-		' Speed
-		MQTTMod.Remove(Array As String("homeassistant/switch/hawe_legotrain/config"))
-		Delay(500)
-		MQTTMod.Remove(Array As String(MQTT_CONFIG_TOPIC_SPEED))
-		Delay(500)		
-		MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_SPEED), _
-						Array As String(MQTT_CONFIG_PAYLOAD_SPEED))
-		Delay(500)
+	' Direction
+	MQTTMod.Remove(Array As String(MQTT_CONFIG_TOPIC_DIRECTION))
+	Delay(MQTT_DELAY_AFTER_TASK)
+	MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_DIRECTION), _
+					Array As String(MQTT_CONFIG_PAYLOAD_DIRECTION))
+	Delay(MQTT_DELAY_AFTER_TASK)
 
-		' Direction
-		MQTTMod.Remove(Array As String(MQTT_CONFIG_TOPIC_DIRECTION))
-		Delay(500)
-		MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_DIRECTION), _
-						Array As String(MQTT_CONFIG_PAYLOAD_DIRECTION))
-		Delay(500)
+	' Headlights
+	MQTTMod.Remove(Array As String(MQTT_CONFIG_TOPIC_HEADLIGHTS))
+	Delay(MQTT_DELAY_AFTER_TASK)
+	MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_HEADLIGHTS), _
+					Array As String(MQTT_CONFIG_PAYLOAD_HEADLIGHTS))
+	Delay(MQTT_DELAY_AFTER_TASK)
+	
+	Log(Millis, "[MQTTPublishConfig] Discovery Entity found > timer stopped")
 
-		' Headlights
-		MQTTMod.Remove(Array As String(MQTT_CONFIG_TOPIC_HEADLIGHTS))
-		Delay(500)
-		MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_HEADLIGHTS), _
-						Array As String(MQTT_CONFIG_PAYLOAD_HEADLIGHTS))
-		Delay(500)
-		
-		' Set the flag so next if can start subscribing
-		TopicConfigReceived = True
-	End If
+	' Subscribe to the command topics - see mqtt_message_arrived
+	MQTTMod.Subscribe(Array As String(MQTT_COMMAND_TOPIC_SPEED, _
+	                                  MQTT_COMMAND_TOPIC_HEADLIGHTS, _
+									  MQTT_COMMAND_TOPIC_DIRECTION))
 
-	' Retained config topic has been received
-	If TopicConfigReceived Then
-		' Stop the timer
-		MQTTCheckEntityTimer.Enabled = False
-		Log("[CheckEntityTimer_Tick] Discovery Entity found > timer stopped")
-
-		' Subscribe to the config & command topic - see mqtt_message_arrived
-		MQTTMod.Subscribe(Array As String(MQTT_CONFIG_TOPIC_SPEED, _
-		                                  MQTT_COMMAND_TOPIC_SPEED, _
-		                                  MQTT_COMMAND_TOPIC_HEADLIGHTS, _
-										  MQTT_COMMAND_TOPIC_DIRECTION))
-	End If
+	' Done = turn the headlights on indicating ready
+	SetHeadlights(True)
 End Sub
 #End Region
 
 #Region MQTT
 ' Event: Handle MQTT Message arrived (called from MQTTMod)
 ' Examples:
-' [MQTT_MessageArrived] topic=hawe/rotarylight/set, payload={"state":"ON","brightness":36}
-' [MQTT_MessageArrived] topic=hawe/rotarylight/set, payload={"state":"ON"}
+' 3709[MQTTPublishStateBrightness] published={"state":"ON","brightness":100}
+' 110987[MQTTPublishStateBrightness] published={"state":"OFF","brightness":0}
 ' The JSON payload is parsed to get the state and brightness.
 ' [MQTT_MessageArrived] state=ON,brightness=3
 Public Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
-	Log("[MQTT_MessageArrived] topic=", Topic, ", payload=", Payload)
-
-	' Check retained topic exists (only once)
-	If Topic == MQTT_CONFIG_TOPIC_SPEED And Not(TopicConfigReceived) Then
-		TopicConfigReceived = True
-		Log("[MQTT_MessageArrived] Retained config topic speed received, value=",Payload)
-		Return
-	End If
+	Log(Millis, "[MQTT_MessageArrived] topic=", Topic, ", payload=", Payload)
 
 	' Check direction
 	If Topic = MQTT_COMMAND_TOPIC_DIRECTION Then
 		Dim Direction As String = bc.StringFromBytes(Payload)
 		DirectionReverse = (Direction == "ON")
-		Log("[MQTT] Direction set to: ", IIf(DirectionReverse, "REVERSE", "FORWARD"))
+		Log(Millis, "[MQTT_MessageArrived] Direction set to: ", IIf(DirectionReverse, "REVERSE", "FORWARD"))
 		Dim dir As String 
 		If DirectionReverse Then
 			dir = "ON"
@@ -291,7 +274,7 @@ Public Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
 			dir = "OFF"
 		End If
 		MQTTMod.Publish(Array As String(MQTT_STATE_TOPIC_DIRECTION), Array As String(dir))
-		Delay(100)
+		Delay(MQTT_DELAY_AFTER_TASK)
 		SetMotorSpeed(LightStateLast, DirectionReverse, LightBrightnessLast)
 		Return
 	End If
@@ -305,12 +288,14 @@ Public Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
 		' Check if payload contains brightness else set last brightness
 		If brightness == -1 Then brightness = LightBrightnessLast
 		SetMotorSpeed(state, DirectionReverse, brightness)
+		Return
 	End If
 
 	' Check headlights
 	If Topic = MQTT_COMMAND_TOPIC_HEADLIGHTS Then
 		Dim state As Boolean = IIf(Payload.length > 0, Utils.OnOffToBool(bc.StringFromBytes(Payload)), LightStateLast)
 		SetHeadlights(state)
+		Return
 	End If
 
 End Sub
@@ -318,12 +303,12 @@ End Sub
 
 #Region Helper
 ' Publish to HA the JSON string containing the state and brightness
-Private Sub PublishStateBrightness(topic As String, state As Boolean, brightness As Byte)
+Private Sub MQTTPublishStateBrightness(topic As String, state As Boolean, brightness As Byte)
 	Dim json() As Byte
 	json = Utils.ReplaceString(MQTT_PAYLOAD_LEGOTRAIN_BRIGHTNESS, "#STATE#".GetBytes, Utils.BoolToOnOff(state).GetBytes)
 	json = Utils.ReplaceString(json, "#BRIGHTNESS#".GetBytes, brightness.As(String).GetBytes)
 	MQTTMod.Publish(Array As String(topic), Array As String(bc.StringFromBytes(json)))
-	Log("[PublishStateBrightness] published=", json)
+	Log(Millis, "[MQTTPublishStateBrightness] published=", json)
 End Sub
 
 '//PWM speed steps
@@ -372,10 +357,10 @@ Private Sub SetMotorSpeed(state As Boolean, reverse As Boolean, speed As Byte)
 	End If
 
 	' Set the motor
-	Log("[SetMotorSpeed] state=", state, ",reverse=", reverse, ",speed=", speed, ",speedstep=",speedstep)
+	Log(Millis, "[SetMotorSpeed] state=", state, ",reverse=", reverse, ",speed=", speed, ",speedstep=",speedstep)
 	Train.singlePWM(OutputBLUE, speedstep)
 
-	PublishStateBrightness(MQTT_STATE_TOPIC_SPEED, state, speed)
+	MQTTPublishStateBrightness(MQTT_STATE_TOPIC_SPEED, state, speed)
 
 	LightBrightnessLast = speed
 	LightStateLast = state
@@ -394,10 +379,10 @@ Private Sub SetHeadlights(state As Boolean)
 	brightnessstep = IIf(state, 0x7, SPEED_STEP_BRK)
 
 	' Set the headlights
-	Log("[SetHeadlights] state=", state, ",brightness=", brightness, ",brightnessstep=",brightnessstep)
+	Log(Millis, "[SetHeadlights] state=", state, ",brightness=", brightness, ",brightnessstep=",brightnessstep)
 	Train.singlePWM(OutputRED, brightnessstep)
 
-	PublishStateBrightness(MQTT_STATE_TOPIC_HEADLIGHTS, state, brightness)
+	MQTTPublishStateBrightness(MQTT_STATE_TOPIC_HEADLIGHTS, state, brightness)
 
 	LightBrightnessLast = brightness
 	LightStateLast = state
