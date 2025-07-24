@@ -25,8 +25,8 @@ Private Sub Process_Globals
 	Private MQTT_BROKER_IP () As Byte 	= Array As Byte(NNN, NNN, NNN, NNN)
 	Private MQTT_BROKER_PORT As UInt 	= 1883
 
-	Private MQTT_RETRIES As Byte			= 10
-	Private MQTTRetryCounter As Byte		= 0
+	Private MQTT_RETRIES As Byte		= 10
+	Private MQTTRetryCounter As Byte	= 0
 
 	Public MQTT_DELAY As ULong			= 500
 	Public Connected As Boolean			= False
@@ -50,20 +50,20 @@ Public Sub Connect(tag As Byte)
 	Connected = MQTT.Connect2(mqttopt)
 
 	If Connected = False Then
-		Log("[MQTTMod Connect][ERROR] Trying to connect again...Retry #", MQTTRetryCounter)
+		Log(Millis, "[MQTTMod Connect][ERROR] Trying to connect again...Retry #", MQTTRetryCounter)
 		MQTTRetryCounter = MQTTRetryCounter + 1
 		If MQTTRetryCounter <= MQTT_RETRIES Then
 			CallSubPlus("Connect", 10000, 0)
 			Return 'False
 		Else
-			Log("[MQTTMod Connect][ERROR] Can not connect to the broker. Retries #", MQTTRetryCounter)
+			Log(Millis, "[MQTTMod Connect][ERROR] Can not connect to the broker. Retries #", MQTTRetryCounter)
 			Return 'False
 		End If
 	End If
 	
 	' MQTT connected. Reset the retrycounter
 	MQTTRetryCounter = 0
-	Log("[MQTTMod Connect][OK]")
+	Log(Millis, "[MQTTMod Connect][OK]")
 	Delay(1000)
 
 	Return 'True
@@ -73,7 +73,7 @@ End Sub
 ' If the server is nor reachable, then MQTT is disconnected.
 ' After 5 seconds, retry to connect again.
 Private Sub MQTT_Disconnected
-	Log("[MQTTMod MQTT_Disconnected] MQTT disconnected > start retrying.")
+	Log(Millis, "[MQTTMod MQTT_Disconnected] MQTT disconnected > start retrying.")
 	Connected = False
 	MQTT.Close
 
@@ -84,7 +84,7 @@ End Sub
 ' Handle MQTT Message arrived.
 ' IMPORTANT: In main the event must be created MQTT_MessageArrived(topic, payload)
 Private Sub MQTT_MessageArrived(Topic As String, Payload() As Byte)
-	' Log("[MQTT_MessageArrived] Topic=", Topic, ", Payload=", Payload)
+	' Log(Millis, "[MQTT_MessageArrived] Topic=", Topic, ", Payload=", Payload)
 	Main.MQTT_MessageArrived(Topic, Payload)
 End Sub
 
@@ -92,7 +92,7 @@ End Sub
 ' topics - Array with topics.
 Public Sub Subscribe(topics() As String)
 	If Not(Connected) Then
-		Log("[MQTTMod Subscribe][ERROR] MQTT is not connected.")
+		Log(Millis, "[MQTTMod Subscribe][ERROR] MQTT is not connected.")
 		Return
 	End If
 
@@ -107,17 +107,17 @@ End Sub
 Public Sub Publish(topics() As String, payloads() As String)
 	' Leave if not connected
 	If Not(Connected) Then
-		Log("[MQTTMod Publish][ERROR] MQTT is not connected.")
+		Log(Millis, "[MQTTMod Publish][ERROR] MQTT is not connected.")
 		Return
 	End If
 
 	For i = 0 To topics.Length - 1
-		If LOGGING Then Log("[MQTTMod Publish] message topic=", topics(i), ",payload=", payloads(i))
+		If LOGGING Then Log(Millis, "[MQTTMod Publish] message topic=", topics(i), ",payload=", payloads(i))
 		PublishChunked(topics(i), payloads(i).GetBytes, True)
 		' HINT
 		' Publish2 can be used if payload length < 128		
 	Next
-	'If LOGGING Then Log("[MQTTMod Publish] Done")
+	'If LOGGING Then Log(Millis, "[MQTTMod Publish] Done")
 End Sub
 
 ' Remove topics permanent.
@@ -125,7 +125,7 @@ End Sub
 Public Sub Remove(topics() As String)
 	' Leave if not connected
 	If Not(Connected) Then
-		Log("[MQTTMod Remove][ERROR] MQTT is not connected.")
+		Log(Millis, "[MQTTMod Remove][ERROR] MQTT is not connected.")
 		Return
 	End If
 	
@@ -133,10 +133,10 @@ Public Sub Remove(topics() As String)
 	Dim b() As Byte = Array As Byte()
 
 	For i = 0 To topics.Length - 1
-		If LOGGING Then Log("[MQTTMod Publish] message topic=", topics(i))
+		If LOGGING Then Log(Millis, "[MQTTMod Publish] message topic=", topics(i))
 		MQTT.Publish2(topics(i), b, True)
 	Next
-	If LOGGING Then Log("[MQTTMod Remove] Done")
+	If LOGGING Then Log(Millis, "[MQTTMod Remove] Done")
 End Sub
 
 ' Sends a large MQTT message in chunks
@@ -151,11 +151,11 @@ Private Sub PublishChunked(topic As String, payload() As Byte, retain As Boolean
 	Dim buffer(CHUNK_SIZE) As Byte
 
 	If LOGGING Then 
-		Log("[MQTTMod PublishChunked] topic=", topic, ", payload length=", length)
+		Log(Millis, "[MQTTMod PublishChunked] topic=", topic, ", payload length=", length)
 	End If
 
 	If MQTT.BeginPublish(topic, length, retain) = False Then
-		Log("[MQTTMod PublishChunked][ERROR] BeginPublish failed")
+		Log(Millis, "[MQTTMod PublishChunked][ERROR] BeginPublish failed")
 		Return
 	End If
 
@@ -177,7 +177,7 @@ Private Sub PublishChunked(topic As String, payload() As Byte, retain As Boolean
 
 		result = MQTT.WriteChunk(actualChunk)
 		If result = False Then
-			Log("[MQTTMod PublishChunked][ERROR] WriteChunk failed at offset ", i)
+			Log(Millis, "[MQTTMod PublishChunked][ERROR] WriteChunk failed at offset ", i)
 			MQTT.EndPublish
 			Return
 		End If
@@ -186,6 +186,6 @@ Private Sub PublishChunked(topic As String, payload() As Byte, retain As Boolean
 	Loop
 
 	result = MQTT.EndPublish
-	If LOGGING Then Log("[MQTTMod PublishChunked] result=", result)
+	If LOGGING Then Log(Millis, "[MQTTMod PublishChunked] result=", result)
 End Sub
 #End Region
