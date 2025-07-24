@@ -214,10 +214,39 @@ hawe/legotrain/direction/set
 
 ## MQTT Tips
 
-To remove retained topics from the MQTT broker using Mosquitto clients:
+Remove retained topics from the MQTT broker using Mosquitto clients.
+Experienced that the best was is to use the mosquitto client `mosquitto_sub`.
+This will automatically remove the entity from Home Assistant.
+Checkout the entities list http://<home assistant-ip:port>/config/entities
+**Command**
 ```
-<path>\mosquitto_pub -h <broker_ip> -u "<user>" -P "<pass>" -t "homeassistant/light/hawe_legotrain/config" -n -r
+<path>\mosquitto_pub -h <broker_ip> -u "<user>" -P "<pass>" -t "<topic>" -n -r
 ```
+**Example**
+Remove the entity `hawe_legotrain_speed'.
+
+1. List config topics using wildcard `+`:
+```
+<path>\mosquitto\mosquitto_sub -h <broker_ip> -u "<user>" -P "<pass>" -t "homeassistant/light/+/config" -v
+```
+
+2. Search for the related config topic:
+```
+homeassistant/light/hawe_legotrain_speed/config
+```
+like
+```
+homeassistant/light/hawe_legotrain_speed/config
+{"name":"HaWe LegoTrain Speed","object_id":"hawe_legotrain_speed","unique_id":"hawe_legotrain_speed","schema":"json","state_topic":"hawe/legotrain/speed/state","command_topic":"hawe/legotrain/speed/set","brightness":true,"supported_color_modes":["brightness"],"device_class":"light","device":{"identifiers":["legotrain"],"name":"Hawe LEGO Train"}}
+```
+
+3. Remove the config topic
+```
+<path>\mosquitto_pub -h <broker_ip> -u "<user>" -P "<pass>" -t "homeassistant/light/hawe_legotrain_speed/config" -n -r
+```
+
+4. Check Home Assistant Entities List
+The entity `hawe_legotrain_speed`should be removed.
 
 ## Home Assistant Setup
 
@@ -309,6 +338,7 @@ Changes required before use (in `Constants.h` in `src/TrainController`):
 - Set MQTT broker IP address in `MQTT` namespace.
 - Set target communication (Wi-Fi and/or MQTT).
 - Implement YAML sensors & dashboard configuration in Home Assistant.
+- Copy the rPowerFunctionsEx library to the B4R additional libraries folder (see folder `B4R/Libraries`).
 
 ## Disclaimer & License
 
