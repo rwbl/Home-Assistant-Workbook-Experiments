@@ -99,7 +99,9 @@ Workbook/B4R/50-HaWe_LEGO_Train/
 ## MQTT
 
 The Home Assistant [MQTT integration](https://www.home-assistant.io/integrations/mqtt/) is used to communicate between the TrainController and Home Assistant.  
-The list of topics and payloads is below.
+The list of topics and payloads used.
+
+**Note:** The MQTT discovery configuration topics are published on every ESP32 boot. This saves boot time & handled by Home Assistant as topic re-publish.
 
 ### Availability
 
