@@ -103,18 +103,19 @@ This ensures:
 * Retained discovery messages stay current.
 
 ### What to Watch Out For
-Rule = Why It Matters
-Use retain: true	              So HA can restart and still remember the config
-Use stable unique_id	          Otherwise HA creates new entities each time
-Wait until MQTT is connected	  So discovery messages don’t get lost
-void flooding	                  A short delay between messages (like 100–250ms) is polite
+**Rule = Why It Matters**
+* Use retain: true = So HA can restart and still remember the config
+* Use stable unique_id = Otherwise HA creates new entities each time
+* Wait until MQTT is connected = So discovery messages don’t get lost
+* void flooding = A short delay between messages (like 100–250ms) is polite
 
 Example:
+```
 MQTTMod.Remove(Array As String(MQTT_CONFIG_TOPIC_SPEED))
 Delay(500)
 MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_SPEED), _
                 Array As String(MQTT_CONFIG_PAYLOAD_SPEED))
-
+```
 This is Clean, Retained, Throttled, Works reliably
 
 Since startup performance matters and checking for retained discovery config can take several seconds — it’s absolutely OK to skip the retained check and always publish the config immediately on boot.
@@ -122,10 +123,10 @@ This guarantees the entities exist and avoids complexity.
 
 ### Summary MQTT Discovery Config Topics Re-Publish
 **Question = Answer**
-Will it break Home Assistant?	= No
-Will it create duplicate entities?	= No (if unique_id is consistent)
-Is it bad practice?	= No — common in devices like Tasmota & ESPHome
-Publish discovery config on every boot?	= Yes, unless constrained on bandwidth or want to optimize further
+* Will it break Home Assistant?	= No
+* Will it create duplicate entities?	= No (if unique_id is consistent)
+* Is it bad practice?	= No — common in devices like Tasmota & ESPHome
+* Publish discovery config on every boot?	= Yes, unless constrained on bandwidth or want to optimize further
 
 ---
 
