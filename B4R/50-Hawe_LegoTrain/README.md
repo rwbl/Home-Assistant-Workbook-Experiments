@@ -50,6 +50,28 @@ This project helps you learn and practice:
 - Arduino CLI 1.2.2 with ESP32 Boards Manager 3.2.1.
 - Home Assistant Core 2025.7.3.
 
+## Wiring
+### DC-DC Power Supply Adapter Step Down Module 9V → 5V (AZ-Delivery)
+**DC.DC Adapter	= ESP32**
+```
+VCC	= Vin
+GND	= GND
+```
+ 
+### IR Transmitter 38kHz
+**KY-005 = ESP32**
+```
+VCC = 3V3
+Data = GPIO12 (D12)
+GND = GND (Black)
+```
+
+### LEGO IR Receiver 8884 38 kHz, reaching distance at least 30' (10m)
+```
+Output Blue	= PF Train Motor
+Output Red = PF Headlights
+```
+
 ## Folder Structure
 
 ```
