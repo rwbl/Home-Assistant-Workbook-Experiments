@@ -1,0 +1,250 @@
+﻿Build1=Default,B4RDev
+Group=Default Group
+Library1=rcore
+Library2=rdfrobot_multigassensor
+Library3=resp8266wifi
+Library4=rmqtt
+Library5=rrandomaccessfile
+Library6=rconvert
+Module1=|relative|..\MQTTMod
+Module2=|relative|..\Utils
+Module3=|relative|..\WiFiMod
+NumberOfFiles=0
+NumberOfLibraries=6
+NumberOfModules=3
+Version=4
+@EndOfDesignText@
+' File:		Hawe_COSensor.b4r
+' Project:	Home Assistant Workbook Experiments (Hawe).
+' Date: 	See globals VERSION
+' Author:	Robert W.B. Linn
+' Brief:	This experiment reads CO gas concentration, VO voltage, and on-board temperature from a CO-sensor connected to an ESP32 board and publish to Home Assistant (HA).
+'			Publish also on-demand by a HA button (lovalace).
+' Hardware:	ESP-Wroom-32, DFRobot SEN0466 Grafity CO sensor.
+' Software:	B4R 4.00 (64 bit), Arduino-CLI 1.2.2, JDK 14.
+' Secrets:	Defined in WiFiMod & MQTTMod.
+' DevInfo:	B4R v4.00 (64 bit), arduino-cli 1.22, Java JDK 14, Additional libraries rESP8266WiFi 1.60, rMQTT 1.40, rRandomAccessFile 1.91, rDFRobot_MultiGasSensor 1.00
+
+' Wiring:
+' SEN0466 = ESP32 - wire
+' VCC = 3V3 - Red
+' GND = GND - Black
+' D/T SDA = GPIO21 - Green
+' C/R SCL = GPIO22 - Blue
+' I2C = 0x74
+'
+' HA:		A lovelace card is defined with the 3 entities.
+'			If adding a button, which enables to request the data on-demand using request topic "hawe/cosensor/get".
+'			Ensur to subscribe to the request topic.
+'			The YAML card configuration:
+'			show_name: True
+'			show_icon: True
+'			Type: button
+'			name: Get CO Sensor Data
+'			tap_action:
+'			  action: call-service
+'			  service: mqtt.publish
+'			  data:
+'			    topic: hawe/cosensor/get
+'			    payload: request
+'			icon: mdi:refresh
+
+
+#Region Project Attributes
+	#AutoFlushLogs: True
+	#CheckArrayBounds: True
+	#StackBufferSize: 600
+#End Region
+
+Sub Process_Globals
+	Private VERSION As String = "Hawe_CO_Sensor v20251006"
+
+	' Communication
+	Public SerialLine As Serial
+	Public Serial1 As Serial
+
+	' MQTT
+	Private MQTT_CLIENT_ID As String = "haweclient"
+
+	' MQTT Availability
+	Private MQTT_STATE_TOPIC_AVAILABILITY As String = "homeassistant/sensor/hawe/cosensor/availability"
+
+	' MQTT Notes
+	' device_class - Type of sensor. Ref: http://developers.home-assistant.io/docs/core/entity/sensor/
+
+	' MQTT CO Concentration
+	Private MQTT_CONFIG_TOPIC_CO As String  = "homeassistant/sensor/hawe_cosensor_co/config"
+	Private MQTT_CONFIG_PAYLOAD_CO As String = _
+		"{" _
+		  """device_class"": ""carbon_monoxide""," _
+		  """name"": ""CO""," _
+		  """state_topic"": ""hawe/cosensor/co/state""," _
+		  """unit_of_measurement"": ""ppm""," _
+		  """default_entity_id"": ""hawe/cosensor/co""," _
+		  """unique_id"": ""hawe/cosensor/co""," _
+		  """availability_topic"": ""homeassistant/sensor/hawe/cosensor/availability""," _
+		  """device"": { ""identifiers"": [""cosensor""], ""name"": ""Hawe CO Sensor""}" _
+		"}"
+	Private MQTT_STATE_TOPIC_CO As String  = "hawe/cosensor/co/state"
+
+	' MQTT Voltage
+	Private MQTT_CONFIG_TOPIC_VOLTAGE As String  = "homeassistant/sensor/hawe_cosensor_voltage/config"
+	Private MQTT_CONFIG_PAYLOAD_VOLTAGE As String = _
+		"{" _
+		  """device_class"": ""voltage""," _
+		  """name"": ""Voltage""," _
+		  """state_topic"": ""hawe/cosensor/voltage/state""," _
+		  """unit_of_measurement"": ""V""," _
+		  """default_entity_id"": ""hawe/cosensor/voltage""," _
+		  """unique_id"": ""hawe/cosensor/voltage""," _
+		  """availability_topic"": ""homeassistant/sensor/hawe/cosensor/availability""," _
+		  """device"": { ""identifiers"": [""cosensor""], ""name"": ""Hawe CO Sensor""}" _
+		"}"
+	Private MQTT_STATE_TOPIC_VOLTAGE As String  = "hawe/cosensor/voltage/state"
+
+	' MQTT Temperature
+	Private MQTT_CONFIG_TOPIC_TEMPERATURE As String = "homeassistant/sensor/hawe_cosensor_temperature/config"
+	Private MQTT_CONFIG_PAYLOAD_TEMPERATURE As String = _
+		"{" _
+		  """device_class"": ""temperature""," _
+		  """name"": ""Temperature""," _
+		  """state_topic"": ""hawe/cosensor/temperature/state""," _
+		  """unit_of_measurement"": ""°C""," _
+		  """default_entity_id"": ""hawe/cosensor/temperature""," _
+		  """unique_id"": ""hawe/cosensor/temperature""," _
+		  """availability_topic"": ""homeassistant/sensor/hawe/cosensor/availability""," _
+		  """device"": { ""identifiers"": [""cosensor""], ""name"": ""Hawe CO Sensor""}" _
+		"}"
+	Private MQTT_STATE_TOPIC_TEMPERATURE As String = "hawe/cosensor/temperature/state"
+
+	' MQTT Request triggered by HA button.
+	' This topic is subscribed and handled by mqtt_messagearrived.
+	' As a response the actual data is read and published (like the timer does)
+	Private MQTT_REQUEST_TOPIC As String = "hawe/cosensor/get"
+
+	Private MQTT_DELAY_AFTER_TASK As ULong = 100	' ms, short delay after every MQTT task like publish
+
+	' Timer Measurement
+	Private MeasurementTimer As Timer
+	Private MEASUREMENTTIMER_INTERVAL As ULong = 60000	' ms, every 60 seconds
+
+	' COSensor SEN0466
+	Private COSensor As DFRobot_MultiGasSensor
+End Sub
+
+Private Sub AppStart
+	SerialLine.Initialize(115200)
+	Log("[Main.AppStart][I]", VERSION)
+	Log("[Main.AppStart][I] Measurement interval=", MEASUREMENTTIMER_INTERVAL / 1000, "s")
+
+	'Init the module
+	If Not(COSensor.Initialize()) Then
+		Log("[Main.AppStart][E] Init CO sensor failed. Check the wiring.")
+		Return
+	Else
+		Log("[Main.AppStart][I] Init CO sensor: OK")
+	End If
+	Delay(2000)
+
+	' Init the measurement timer reading data from the co sensor
+	MeasurementTimer.Initialize("PerformMeasurement", MEASUREMENTTIMER_INTERVAL)
+	MeasurementTimer.Enabled = False
+
+	' Connect to the WiFi
+	WiFiMod.Connected = WiFiMod.Connect
+
+	' Wifi connected
+	If WiFiMod.Connected Then
+		' Connect to the broker
+		MQTTMod.Initialize(MQTT_CLIENT_ID, WiFiMod.Client.Stream)
+		MQTTMod.Connect(0)
+		Delay(1000)
+
+		If MQTTMod.Connected Then
+
+			' Publish availability offline
+			MQTTMod.Publish(Array As String(MQTT_STATE_TOPIC_AVAILABILITY), Array As String("offline"))
+
+			' Subscribe to availability topic
+			MQTTMod.Subscribe(Array As String(MQTT_STATE_TOPIC_AVAILABILITY))
+			Delay(MQTT_DELAY_AFTER_TASK)
+
+			' Publish topic availability with state online
+			MQTTMod.Publish(Array As String(MQTT_STATE_TOPIC_AVAILABILITY), Array As String("online"))
+			Delay(MQTT_DELAY_AFTER_TASK)
+
+			' Publish the MQTT discovery config messages
+			MQTTPublishConfig
+			Delay(MQTT_DELAY_AFTER_TASK)
+		End If
+	End If
+End Sub
+
+#Region MQTTPublishConfig
+' Publish the MQTT configuration messages and subscribe to topics
+Private Sub MQTTPublishConfig
+
+	' Only action if MQTT is connected
+	If Not(MQTTMod.Connected) Then
+		MeasurementTimer.Enabled = False
+		Log("[Main.MQTTPublishConfig][E] Not connected to MQTT.")
+		Return
+	End If
+
+	Log("[Main.MQTTPublishConfig][I] Publishing topics...")
+
+	' Publish the entity config topics with payload
+	MQTTMod.Publish(Array As String(MQTT_CONFIG_TOPIC_TEMPERATURE, MQTT_CONFIG_TOPIC_CO, MQTT_CONFIG_TOPIC_VOLTAGE), _			' Config Topic
+					Array As String(MQTT_CONFIG_PAYLOAD_TEMPERATURE, MQTT_CONFIG_PAYLOAD_CO, MQTT_CONFIG_PAYLOAD_VOLTAGE))		' Config Payload
+	Delay(MQTT_DELAY_AFTER_TASK)
+	
+	' Subscribe to the request topic
+	MQTTMod.Subscribe(Array As String(MQTT_REQUEST_TOPIC))
+	Delay(MQTT_DELAY_AFTER_TASK)
+
+	' Start the measurement timer
+	MeasurementTimer.Enabled = True
+	' MeasurementTimer_Tick
+	
+	Log("[Main.MQTTPublishConfig][I] Done. Waiting for data...")
+End Sub
+#End Region
+
+#Region PerformMeasurement
+Private Sub PerformMeasurement
+
+	If Not(WiFiMod.Connected) Then
+		MeasurementTimer.Enabled = False
+		Log("[Main.PerformMeasurement][E] Not connected to WiFi. Timer stopped.")
+		Return
+	End If
+
+	If Not(MQTTMod.Connected) Then
+		MeasurementTimer.Enabled = False
+		Log("[Main.PerformMeasurement][E] Not connected to MQTT. Timer stopped.")
+		Return
+	End If
+
+	' Read the data from the sensor
+	Private concentration As Float = COSensor.ReadConcentrationPPM
+	Private temperature As Float = COSensor.ReadTemperatureC
+	Private voltage As Float = COSensor.ReadVoltage
+	Log("[Main.PerformMeasurement][I] data co=", concentration, " ppm, t=", temperature," °C, v=", voltage," V")
+
+	' Publish the state topics to HA
+	MQTTMod.Publish(Array As String(MQTT_STATE_TOPIC_CO, MQTT_STATE_TOPIC_TEMPERATURE, MQTT_STATE_TOPIC_VOLTAGE), _
+				    Array As String(concentration, temperature, voltage))
+End Sub
+#End Region
+
+#Region MQTT
+Public Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
+	Log("[Main.MQTT_MessageArrived][I] topic=", Topic, ", payload=", Utils.BytesToString(Payload))
+	
+	' Check if HA has sent a request for new data
+	If Topic == MQTT_REQUEST_TOPIC Then
+		Log("[Main.MQTT_MessageArrived][I] Received request for data. PerformMeasurement called.")
+		PerformMeasurement
+	End If
+End Sub
+#End Region
