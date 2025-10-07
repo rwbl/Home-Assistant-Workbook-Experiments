@@ -8,12 +8,13 @@ These libraries must be present in your **B4R additional libraries path** to ens
 
 ---
 
-## Included Dependencies
+## B4R Experiment Library Dependencies
 
-| Experiment       | Required Library    |
-|------------------|---------------------|
-| `hawe_sht20`     | `rSHT20`            |
-| `hawe_legotrain` | `rPowerFunctionsEx` |
+| Experiment       | Required Library          |
+|------------------|---------------------------|
+| `hawe_sht20`     | `rSHT20`                  |
+| `hawe_legotrain` | `rPowerFunctionsEx`       |
+| `hawe_cosensor`  | `rDFRobot_MultiGasSensor` |
 
 ---
 
