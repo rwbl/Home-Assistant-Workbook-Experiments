@@ -3,8 +3,17 @@
 This folder contains external B4R libraries required for specific experiments in the **Hawe** project.  
 These libraries must be present in your **B4R additional libraries path** to ensure successful compilation and deployment.
 
-> **Note:** B4R does not automatically download dependencies. You must manually copy required libraries to the appropriate folder, typically found at:  
-> `Documents\B4X\AdditionalLibraries\B4R\Libraries`
+**Note:**
+
+B4R does not automatically download dependencies. You must manually copy required libraries to the appropriate folder, typically found at:
+
+`Documents\B4X\AdditionalLibraries\B4R\Libraries`
+
+Example library archive `rSHT20-100.zip`:
+
+Unpack to folder `Documents\B4X\AdditionalLibraries\B4R\Libraries\` resulting in
+- Folder: `Documents\B4X\AdditionalLibraries\B4R\Libraries\rSHT20` and
+- File: `Documents\B4X\AdditionalLibraries\B4R\Libraries\rSHT20.xml`
 
 ---
 
