@@ -53,6 +53,7 @@ Public Sub OnOffToBool(value As String) As Boolean
 	Return False
 End Sub
 
+' Convert direction given as byte to string
 Public Sub DirectionToString(direction As Byte) As String
 	Select direction
 		Case 0: Return "RIGHT"
@@ -62,6 +63,11 @@ Public Sub DirectionToString(direction As Byte) As String
 		Case Else
 			Return ""
 	End Select
+End Sub
+
+' Convert bytes to string
+Public Sub BytesToString(bytes() As Byte) As String
+	Return bc.StringFromBytes(bytes)
 End Sub
 
 'Dim rawValue As String = bc.StringFromBytes(buffer)
