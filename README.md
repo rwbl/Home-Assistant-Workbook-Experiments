@@ -77,6 +77,7 @@ Explore the subfolders for platform-specific instructions, examples, and librari
 | **HaWe_LCD2004**              | LCD 2004 Display                                | ❌           | 🕓   |
 | **HaWe_SR04**                 | Distance Sensor                                 | ❌           | 🕓   |
 | **HaWe_LegoTrain**            | Control LEGO® PowerFunctions train via Lovelace | ❌           | ✅   |
+| **HaWe_COSensor**             | Read DFRobot SEN0466 CO ppm, V, Temperature     | ❌           | ✅   |
 *(More experiments planned)*
 
 ✅ = Completed, ❌ = Not planned, 🕓 = Planned, 🚧= In Progress
@@ -143,7 +144,9 @@ MQTT is the main communication protocol between devices and Home Assistant.
 
 ### MQTT Autodiscovery
 
-Example: Create a switch called `testswitch`
+**Example:** Create a switch called `testswitch`
+
+Entity configuration topic & payload.
 
 **Topic:**
 ```
@@ -154,7 +157,7 @@ homeassistant/switch/hawe_testswitch/config
 ```json
 {
     "name": "Hawe Test Switch",
-    "object_id": "testswitch",
+    "default_entity_id": "testswitch",
     "unique_id": "testswitch",
     "state_topic": "hawe/testswitch/state",
     "command_topic": "hawe/testswitch/set",
@@ -169,6 +172,7 @@ homeassistant/switch/hawe_testswitch/config
     }
 }
 ```
+_Note:_ In older Home Assistant versions the `object_id` is used instead `default_entity_id`.
 
 **MQTT commands:**
 ```bash
@@ -187,7 +191,7 @@ mosquitto_pub -h <broker_ip> -u <user> -P <pass> -t "homeassistant/switch/hawe/t
 Add to `hawe/mqtt/switches.yaml`:
 ```yaml
 - name: "Hawe Test Switch"
-  object_id: "hawe_test_switch"
+  default_entity_id: "hawe_test_switch"
   unique_id: "hawe_test_switch"
   state_topic: "hawe/testswitch/state"
   command_topic: "hawe/testswitch/set"
