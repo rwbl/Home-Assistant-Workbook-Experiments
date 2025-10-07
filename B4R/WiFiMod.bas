@@ -24,15 +24,18 @@ Private Sub Process_Globals
 	Public Client As WiFiSocket
 End Sub
 
-' Connect to the network
+' Connect to the WiFi network
 ' Return Boolean
+' Retval True connected
+' Retval False connection failed
 Public Sub Connect As Boolean
-	'Check if wifi connected
 	If WiFi.Connect2(SSID, Password) Then
-		Log(Millis, "[WiFiMod Connect][OK] ip=", WiFi.LocalIp)
+		Log("[WiFiMod.Connect][I] OK, ip=", WiFi.LocalIp)
 		Return True
 	Else
-		Log(Millis, "[WiFiMod Connect][ERROR] Can not connect to the network.")
+		Log("[WiFiMod.Connect][E] Can not connect to the network.")
 		Return False
 	End If
 End Sub
+
+
